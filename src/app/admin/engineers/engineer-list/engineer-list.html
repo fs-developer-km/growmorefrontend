@@ -1,0 +1,59 @@
+<div class="engineer-list-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Engineers</h1>
+      <p>Saare engineers manage karo</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/admin/engineers/add">
+      <mat-icon>person_add</mat-icon>
+      <span class="hide-mobile">Engineer Add</span>
+    </button>
+  </div>
+
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && engineers.length === 0">
+    <mat-icon>engineering</mat-icon>
+    <h3>Koi engineer nahi hai</h3>
+    <p>Pehla engineer add karo</p>
+    <button mat-raised-button color="primary" routerLink="/admin/engineers/add">
+      <mat-icon>person_add</mat-icon> Engineer Add Karo
+    </button>
+  </div>
+
+  <div class="engineers-grid" *ngIf="!loading && engineers.length > 0">
+    <div class="engineer-card" *ngFor="let eng of engineers">
+
+      <div class="eng-header">
+        <div class="eng-avatar" [style.background]="eng.isActive ? 'linear-gradient(135deg, #1565C0, #42A5F5)' : '#ccc'">
+          {{ getInitials(eng.name) }}
+        </div>
+        <div class="eng-info">
+          <h3>{{ eng.name }}</h3>
+          <a href="tel:{{ eng.phone }}" class="phone-link">
+            <mat-icon>phone</mat-icon> {{ eng.phone }}
+          </a>
+        </div>
+        <span class="status-dot" [class.active]="eng.isActive" [class.inactive]="!eng.isActive">
+          {{ eng.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+
+      <div class="eng-details" *ngIf="eng.email || eng.address">
+        <small *ngIf="eng.email"><mat-icon>email</mat-icon> {{ eng.email }}</small>
+        <small *ngIf="eng.address"><mat-icon>location_on</mat-icon> {{ eng.address }}</small>
+      </div>
+
+      <div class="eng-actions">
+        <button mat-stroked-button color="warn" (click)="deactivate(eng._id, eng.name)" *ngIf="eng.isActive">
+          <mat-icon>person_off</mat-icon> Deactivate
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

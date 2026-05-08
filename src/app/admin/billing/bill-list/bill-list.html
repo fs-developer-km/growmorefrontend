@@ -1,0 +1,105 @@
+<div class="bill-list-page">
+
+  <!-- Header -->
+  <div class="page-top">
+    <div class="page-title">
+      <h1>Bills 🧾</h1>
+      <p>{{ bills.length }} total bills</p>
+    </div>
+    <button class="add-btn" routerLink="/admin/bills/create">
+      <mat-icon>add</mat-icon>
+      <span class="hide-mobile">Naya Bill</span>
+    </button>
+  </div>
+
+  <!-- Revenue Stats -->
+  <div class="revenue-grid" *ngIf="!loading && bills.length > 0">
+    <div class="rev-card total">
+      <div class="rev-icon">💰</div>
+      <div class="rev-info">
+        <span class="rev-num">₹{{ totalRevenue }}</span>
+        <span class="rev-label">Total Revenue</span>
+      </div>
+    </div>
+    <div class="rev-card paid">
+      <div class="rev-icon">✅</div>
+      <div class="rev-info">
+        <span class="rev-num">₹{{ paidRevenue }}</span>
+        <span class="rev-label">Paid</span>
+      </div>
+    </div>
+    <div class="rev-card pending">
+      <div class="rev-icon">⏳</div>
+      <div class="rev-info">
+        <span class="rev-num">₹{{ pendingRevenue }}</span>
+        <span class="rev-label">Pending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="filter-chips">
+    <button
+      *ngFor="let f of filters"
+      class="chip-btn"
+      [class.active]="selectedFilter === f.value"
+      (click)="filterBills(f.value)">
+      {{ f.label }}
+    </button>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && filteredBills.length === 0">
+    <div class="empty-icon">🧾</div>
+    <h3>Koi bill nahi hai</h3>
+    <p>Pehla bill generate karo</p>
+    <button class="add-btn" routerLink="/admin/bills/create">
+      <mat-icon>add</mat-icon> Bill Banao
+    </button>
+  </div>
+
+  <!-- Bills List -->
+  <div class="bills-list" *ngIf="!loading && filteredBills.length > 0">
+    <div
+      class="bill-card"
+      *ngFor="let bill of filteredBills"
+      [routerLink]="['/admin/bills', bill._id]">
+
+      <div class="bill-left">
+        <div class="bill-num-box">
+          <span class="bill-num">{{ bill.billNumber }}</span>
+          <span class="bill-date">{{ bill.createdAt | date:'dd MMM' }}</span>
+        </div>
+        <div class="bill-info">
+          <h3>{{ bill.customer?.name }}</h3>
+          <div class="bill-meta">
+            <span><mat-icon>phone</mat-icon>{{ bill.customer?.phone }}</span>
+            <span><mat-icon>payment</mat-icon>{{ bill.paymentMethod }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bill-right">
+        <span class="bill-amount">₹{{ bill.grandTotal }}</span>
+        <span class="payment-badge {{ getPaymentBadge(bill.paymentStatus) }}">
+          {{ bill.paymentStatus }}
+        </span>
+        <button
+          mat-icon-button
+          class="pdf-btn hide-mobile"
+          (click)="downloadPdf(bill._id, bill.billNumber, $event)"
+          title="PDF Download">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </button>
+        <mat-icon class="arrow hide-mobile">chevron_right</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+</div>

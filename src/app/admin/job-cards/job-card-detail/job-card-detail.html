@@ -1,0 +1,225 @@
+<div class="jc-detail-page">
+
+  <!-- Header -->
+  <div class="page-top">
+    <div class="page-title">
+      <button mat-icon-button routerLink="/admin/leads" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1>Job Card Detail</h1>
+        <p *ngIf="jobCard">{{ jobCard.customer?.name }} — {{ jobCard.applianceType }}</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="jobCard">
+      <span class="status-badge {{ getStatusClass(jobCard.status) }}">
+        {{ jobCard.status }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+    <p>Load ho raha hai...</p>
+  </div>
+
+  <!-- Content -->
+  <div class="detail-layout" *ngIf="!loading && jobCard">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- Customer + Engineer Info -->
+      <div class="info-card">
+        <div class="card-header-row">
+          <div class="card-icon-title">
+            <div class="icon-box blue">👤</div>
+            <span>Customer Info</span>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="avatar blue-av">
+            {{ jobCard.customer?.name?.charAt(0) }}
+          </div>
+          <div class="profile-info">
+            <h3>{{ jobCard.customer?.name }}</h3>
+            <a [href]="'tel:' + jobCard.customer?.phone" class="phone-link">
+              <mat-icon>phone</mat-icon>
+              {{ jobCard.customer?.phone }}
+            </a>
+            <p class="address" *ngIf="jobCard.customer?.address">
+              <mat-icon>location_on</mat-icon>
+              {{ jobCard.customer?.address }}
+            </p>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="card-header-row" style="margin-top: 14px;">
+          <div class="card-icon-title">
+            <div class="icon-box green">👷</div>
+            <span>Engineer Info</span>
+          </div>
+        </div>
+
+        <div class="profile-row" *ngIf="jobCard.engineer">
+          <div class="avatar green-av">
+            {{ jobCard.engineer?.name?.charAt(0) }}
+          </div>
+          <div class="profile-info">
+            <h3>{{ jobCard.engineer?.name }}</h3>
+            <a [href]="'tel:' + jobCard.engineer?.phone" class="phone-link">
+              <mat-icon>phone</mat-icon>
+              {{ jobCard.engineer?.phone }}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Info Card -->
+      <div class="info-card">
+        <div class="card-icon-title" style="margin-bottom: 16px;">
+          <div class="icon-box purple">🔧</div>
+          <span>Service Details</span>
+        </div>
+
+        <div class="detail-rows">
+          <div class="detail-row">
+            <span class="d-label">Appliance</span>
+            <span class="d-value">
+              {{ getApplianceEmoji(jobCard.applianceType) }} {{ jobCard.applianceType }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="d-label">Service</span>
+            <span class="d-value">{{ jobCard.serviceType }}</span>
+          </div>
+          <div class="detail-row" *ngIf="jobCard.problemDescription">
+            <span class="d-label">Problem</span>
+            <span class="d-value">{{ jobCard.problemDescription }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="d-label">Kaam Kiya</span>
+            <span class="d-value">{{ jobCard.workDone }}</span>
+          </div>
+          <div class="detail-row" *ngIf="jobCard.remarks">
+            <span class="d-label">Remarks</span>
+            <span class="d-value">{{ jobCard.remarks }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="d-label">Date</span>
+            <span class="d-value">{{ jobCard.createdAt | date:'dd MMM yyyy, hh:mm a' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- Parts Used Card -->
+      <div class="info-card">
+        <div class="card-icon-title" style="margin-bottom: 16px;">
+          <div class="icon-box amber">📦</div>
+          <span>Parts Used</span>
+        </div>
+
+        <!-- No Parts -->
+        <div class="no-parts" *ngIf="!jobCard.partsUsed || jobCard.partsUsed.length === 0">
+          <mat-icon>inventory_2</mat-icon>
+          <p>Koi part use nahi hua</p>
+        </div>
+
+        <!-- Parts List -->
+        <div class="parts-list" *ngIf="jobCard.partsUsed?.length > 0">
+          <div class="parts-header">
+            <span>Part Name</span>
+            <span>Qty</span>
+            <span>Rate</span>
+            <span>Total</span>
+          </div>
+          <div class="part-row" *ngFor="let part of jobCard.partsUsed">
+            <span class="part-name">{{ part.partName }}</span>
+            <span class="part-qty">× {{ part.quantity }}</span>
+            <span class="part-rate">₹{{ part.salePrice }}</span>
+            <span class="part-total">₹{{ part.totalPrice }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bill Summary Card -->
+      <div class="bill-summary-card">
+        <div class="card-icon-title" style="margin-bottom: 16px;">
+          <div class="icon-box green">💰</div>
+          <span>Bill Summary</span>
+        </div>
+
+        <div class="summary-rows">
+          <div class="summary-row">
+            <span>Parts Total</span>
+            <span>₹{{ getPartsTotal() }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Service Charge</span>
+            <span>₹{{ jobCard.serviceCharge || 0 }}</span>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="summary-row total-row">
+            <span>Estimated Total</span>
+            <span class="total-amt">₹{{ getGrandTotal() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons Card -->
+      <div class="action-card">
+        <div class="card-icon-title" style="margin-bottom: 16px;">
+          <div class="icon-box blue">⚡</div>
+          <span>Actions</span>
+        </div>
+
+        <!-- Complete Job Button -->
+        <button
+          class="action-btn complete-btn"
+          (click)="completeJob()"
+          [disabled]="completing || jobCard.status === 'Completed'">
+          <mat-spinner diameter="18" *ngIf="completing"></mat-spinner>
+          <mat-icon *ngIf="!completing">check_circle</mat-icon>
+          <span>{{ jobCard.status === 'Completed' ? 'Job Complete Hai ✅' : 'Job Complete Karo' }}</span>
+        </button>
+
+        <!-- Create Bill Button -->
+        <button
+          class="action-btn bill-btn"
+          (click)="goToBilling()">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Bill Banao</span>
+        </button>
+
+        <!-- WhatsApp Button -->
+        
+        <a  class="action-btn wa-btn"
+          [href]="'https://wa.me/91' + jobCard.customer?.phone"
+          target="_blank">
+          <mat-icon>message</mat-icon>
+          <span>WhatsApp Karo</span>
+        </a>
+
+        <!-- Lead Button -->
+        <button
+          class="action-btn lead-btn"
+          [routerLink]="['/admin/leads', jobCard.lead]">
+          <mat-icon>assignment</mat-icon>
+          <span>Lead Dekho</span>
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

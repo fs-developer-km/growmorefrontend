@@ -1,0 +1,281 @@
+<div class="bill-create-page">
+
+  <!-- Header -->
+  <div class="page-top">
+    <div class="page-title">
+      <button mat-icon-button routerLink="/admin/bills" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1>Bill Banao 🧾</h1>
+        <p *ngIf="jobCard">{{ jobCard.customer?.name }} — {{ jobCard.applianceType }}</p>
+        <p *ngIf="!jobCard && !loadingJobCard">Manual bill create karo</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Card Banner -->
+  <div class="job-banner" *ngIf="jobCard">
+    <div class="banner-left">
+      <div class="banner-icon">📋</div>
+      <div>
+        <span class="banner-title">Job Card se Auto Fill ho gaya</span>
+        <span class="banner-sub">Parts aur charges already fill hain — check karke submit karo</span>
+      </div>
+    </div>
+    <span class="banner-badge">Auto Fill ✅</span>
+  </div>
+
+  <!-- Loading Job Card -->
+  <div class="loader-wrap" *ngIf="loadingJobCard">
+    <mat-spinner diameter="36"></mat-spinner>
+    <p>Job card load ho raha hai...</p>
+  </div>
+
+  <form [formGroup]="billForm" (ngSubmit)="onSubmit()" *ngIf="!loadingJobCard">
+    <div class="bill-layout">
+
+      <!-- LEFT — Bill Items -->
+      <div class="left-col">
+
+        <!-- Parts Section -->
+        <div class="bill-card">
+          <div class="bill-card-header">
+            <div class="bch-left">
+              <div class="bch-icon">📦</div>
+              <span>Spare Parts</span>
+            </div>
+            <button mat-stroked-button type="button" (click)="addPart()" class="add-part-btn">
+              <mat-icon>add</mat-icon> Part Add Karo
+            </button>
+          </div>
+
+          <!-- No Parts -->
+          <div class="no-items" *ngIf="partsArray.length === 0">
+            <mat-icon>inventory_2</mat-icon>
+            <p>Koi part nahi hai — "Part Add Karo" click karo</p>
+          </div>
+
+          <!-- Parts Table Header -->
+          <div class="parts-table-header" *ngIf="partsArray.length > 0">
+            <span class="col-name">Part Name</span>
+            <span class="col-qty">Qty</span>
+            <span class="col-price">Rate (₹)</span>
+            <span class="col-total">Total</span>
+            <span class="col-del"></span>
+          </div>
+
+          <!-- Parts Rows -->
+          <div formArrayName="partsUsed">
+            <div
+              class="part-input-row"
+              *ngFor="let part of partsArray.controls; let i = index"
+              [formGroupName]="i">
+
+              <mat-form-field appearance="outline" class="col-name">
+                <input matInput formControlName="partName" placeholder="Part ka naam">
+                <mat-error>Naam zaroori</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-qty">
+                <input matInput type="number" formControlName="quantity"
+                  min="1" (input)="updatePartTotal(i)">
+                <mat-error>Min 1</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-price">
+                <input matInput type="number" formControlName="salePrice"
+                  min="0" (input)="updatePartTotal(i)">
+                <span matPrefix>₹&nbsp;</span>
+              </mat-form-field>
+
+              <div class="col-total-val">
+                ₹{{ (part.get('quantity')?.value || 0) * (part.get('salePrice')?.value || 0) }}
+              </div>
+
+              <button mat-icon-button type="button" color="warn"
+                (click)="removePart(i)" class="col-del">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Parts Subtotal -->
+          <div class="parts-subtotal" *ngIf="partsArray.length > 0">
+            <span>Parts Total</span>
+            <span class="pts-total">₹{{ getPartsTotal() }}</span>
+          </div>
+        </div>
+
+        <!-- Service Charge Section -->
+        <div class="bill-card">
+          <div class="bill-card-header">
+            <div class="bch-left">
+              <div class="bch-icon">🔧</div>
+              <span>Service Charge</span>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Service Charge (₹)</mat-label>
+            <input matInput type="number" formControlName="serviceCharge" min="0">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-hint>Engineer visit + repair charge</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- GST + Discount Section -->
+        <div class="bill-card">
+          <div class="bill-card-header">
+            <div class="bch-left">
+              <div class="bch-icon">📊</div>
+              <span>GST & Discount</span>
+            </div>
+          </div>
+
+          <!-- GST Toggle -->
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-label">GST Apply Karo?</span>
+              <span class="toggle-sub">Bill pe GST add hoga</span>
+            </div>
+            <button
+              type="button"
+              class="toggle-btn"
+              [class.active]="gstEnabled"
+              (click)="toggleGst()">
+              {{ gstEnabled ? 'ON' : 'OFF' }}
+            </button>
+          </div>
+
+          <div class="gst-field" *ngIf="gstEnabled">
+            <mat-form-field appearance="outline" class="full-w">
+              <mat-label>GST Percent (%)</mat-label>
+              <mat-select formControlName="gstPercent">
+                <mat-option [value]="5">5%</mat-option>
+                <mat-option [value]="12">12%</mat-option>
+                <mat-option [value]="18">18%</mat-option>
+                <mat-option [value]="28">28%</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>percent</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Discount (₹)</mat-label>
+            <input matInput type="number" formControlName="discount" min="0">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-hint>0 rakho agar koi discount nahi</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Notes -->
+        <div class="bill-card">
+          <div class="bill-card-header">
+            <div class="bch-left">
+              <div class="bch-icon">📝</div>
+              <span>Notes</span>
+            </div>
+          </div>
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Bill Notes (Optional)</mat-label>
+            <textarea matInput formControlName="notes" rows="2"
+              placeholder="Koi special note..."></textarea>
+          </mat-form-field>
+        </div>
+
+      </div>
+
+      <!-- RIGHT — Summary + Payment -->
+      <div class="right-col">
+
+        <!-- Bill Summary -->
+        <div class="summary-card">
+          <div class="summary-title">
+            <span>🧾</span>
+            <span>Bill Summary</span>
+          </div>
+
+          <div class="summary-rows">
+            <div class="s-row">
+              <span>Parts Total</span>
+              <span>₹{{ getPartsTotal() }}</span>
+            </div>
+            <div class="s-row">
+              <span>Service Charge</span>
+              <span>₹{{ billForm.get('serviceCharge')?.value || 0 }}</span>
+            </div>
+            <div class="s-row subtotal-row">
+              <span>Subtotal</span>
+              <span>₹{{ getSubtotal() }}</span>
+            </div>
+            <div class="s-row gst-row" *ngIf="gstEnabled && getGstAmount() > 0">
+              <span>GST ({{ billForm.get('gstPercent')?.value }}%)</span>
+              <span class="gst-amt">+₹{{ getGstAmount() }}</span>
+            </div>
+            <div class="s-row discount-row" *ngIf="getDiscount() > 0">
+              <span>Discount</span>
+              <span class="discount-amt">-₹{{ getDiscount() }}</span>
+            </div>
+          </div>
+
+          <div class="grand-total-box">
+            <span>Grand Total</span>
+            <span class="grand-amt">₹{{ getGrandTotal() }}</span>
+          </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="payment-card">
+          <div class="bill-card-header" style="margin-bottom: 14px;">
+            <div class="bch-left">
+              <div class="bch-icon">💳</div>
+              <span>Payment Details</span>
+            </div>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Payment Method</mat-label>
+            <mat-select formControlName="paymentMethod">
+              <mat-option *ngFor="let m of paymentMethods" [value]="m">
+                {{ m }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>payment</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Payment Status</mat-label>
+            <mat-select formControlName="paymentStatus">
+              <mat-option value="Pending">Pending</mat-option>
+              <mat-option value="Paid">Paid</mat-option>
+              <mat-option value="Partial">Partial</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>receipt</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="submit-card">
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="billForm.invalid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <mat-icon *ngIf="!loading">receipt_long</mat-icon>
+            <span>{{ loading ? 'Bill Ban Raha Hai...' : 'Bill Generate Karo' }}</span>
+          </button>
+          <button mat-stroked-button type="button"
+            routerLink="/admin/bills"
+            [disabled]="loading"
+            class="cancel-btn">
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+</div>

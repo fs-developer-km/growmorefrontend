@@ -1,0 +1,256 @@
+.eng-container {
+  height: 100vh;
+  background: #F0F4FF;
+}
+
+.eng-sidenav {
+  width: 260px;
+  background: linear-gradient(180deg, #0F0A2E 0%, #1a0533 100%);
+  border: none !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.eng-sidebar-header {
+  padding: 22px 18px 16px;
+
+  .eng-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .eng-logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #8B5CF6, #EC4899);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(139,92,246,0.4);
+    }
+
+    .eng-logo-text {
+      .eng-logo-title {
+        display: block;
+        color: white;
+        font-size: 1rem;
+        font-weight: 800;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      .eng-logo-sub {
+        display: block;
+        color: rgba(255,255,255,0.35);
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+.eng-profile-card {
+  margin: 0 12px 14px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .eng-profile-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .eng-profile-info {
+    .eng-profile-name {
+      display: block;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .eng-profile-role {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+
+      .online-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #10B981;
+        box-shadow: 0 0 6px #10B981;
+        animation: pulse 2s infinite;
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.eng-nav-list {
+  flex: 1;
+  padding: 8px 10px;
+}
+
+.eng-nav-item {
+  color: rgba(255,255,255,0.55) !important;
+  border-radius: 12px !important;
+  margin-bottom: 3px !important;
+  height: 46px !important;
+  transition: all 0.2s !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+
+  mat-icon { color: rgba(255,255,255,0.45) !important; font-size: 20px !important; }
+  span { font-size: 0.88rem !important; font-weight: 500 !important; }
+
+  &:hover {
+    background: rgba(255,255,255,0.07) !important;
+    color: white !important;
+    transform: translateX(4px);
+    mat-icon { color: white !important; }
+  }
+
+  &.eng-active {
+    background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(236,72,153,0.2)) !important;
+    color: white !important;
+    border: 1px solid rgba(139,92,246,0.3) !important;
+    box-shadow: 0 4px 15px rgba(139,92,246,0.2);
+    mat-icon { color: #C4B5FD !important; }
+    span { font-weight: 700 !important; }
+  }
+
+  &.eng-logout {
+    color: rgba(252,165,165,0.7) !important;
+    mat-icon { color: rgba(252,165,165,0.7) !important; }
+    &:hover { background: rgba(239,68,68,0.1) !important; }
+  }
+}
+
+.eng-sidebar-footer { padding: 8px 10px; }
+
+// Toolbar
+.eng-toolbar {
+  background: rgba(255,255,255,0.9) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 1px 0 rgba(139,92,246,0.08) !important;
+  height: 68px !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  border-bottom: 1px solid rgba(139,92,246,0.06) !important;
+
+  .eng-menu-btn {
+    color: #8B5CF6;
+    background: rgba(139,92,246,0.08);
+    border-radius: 10px !important;
+    margin-right: 12px;
+  }
+
+  .eng-page-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1E1B4B;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .eng-spacer { flex: 1; }
+
+  .eng-user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 12px !important;
+    background: rgba(139,92,246,0.06) !important;
+    border: 1px solid rgba(139,92,246,0.12) !important;
+    padding: 6px 12px !important;
+
+    .eng-toolbar-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #8B5CF6, #EC4899);
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    span { font-size: 0.85rem; color: #1E1B4B; font-weight: 600; }
+    mat-icon { color: #8B5CF6; font-size: 18px; }
+  }
+}
+
+.eng-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+
+  .eng-menu-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  strong { display: block; font-size: 0.9rem; color: #1E1B4B; font-weight: 700; }
+  small { color: #94A3B8; font-size: 0.78rem; }
+}
+
+.eng-main { background: #F0F4FF; }
+
+.eng-content {
+  padding: 28px;
+  min-height: calc(100vh - 68px);
+
+  @media (max-width: 600px) { padding: 16px; }
+}

@@ -1,0 +1,274 @@
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0D1B4B;
+    margin: 0;
+  }
+
+  p {
+    color: #888;
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
+  .add-btn {
+    border-radius: 10px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+// Loader
+.page-loader-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem;
+  gap: 16px;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+// Stats Grid
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 500px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .stat-icon-wrap {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      color: white;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .stat-body {
+    display: flex;
+    flex-direction: column;
+
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.8);
+      margin-top: 4px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    padding: 14px;
+    gap: 10px;
+
+    .stat-icon-wrap {
+      width: 40px;
+      height: 40px;
+      mat-icon { font-size: 20px; width: 20px; height: 20px; }
+    }
+
+    .stat-body .stat-num { font-size: 1.5rem; }
+    .stat-body .stat-label { font-size: 0.72rem; }
+  }
+}
+
+// Section Cards
+.section-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid #f0f0f0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0;
+  }
+
+  .view-all {
+    font-size: 0.85rem;
+    color: #1565C0;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// Quick Actions
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  button {
+    border-radius: 10px !important;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 500px) {
+    button { flex: 1; min-width: calc(50% - 5px); justify-content: center; }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #aaa;
+
+  mat-icon {
+    font-size: 3.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    color: #ddd;
+  }
+
+  h3 { color: #555; margin: 12px 0 6px; font-size: 1rem; }
+  p { font-size: 0.85rem; margin-bottom: 16px; }
+}
+
+// Leads List
+.leads-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lead-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f8f9fc;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+
+  &:hover {
+    background: #EEF2FF;
+    border-color: #C7D7FD;
+    transform: translateX(4px);
+  }
+
+  .lead-appliance {
+    .appliance-emoji { font-size: 1.8rem; }
+  }
+
+  .lead-main {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+      font-size: 0.92rem;
+      color: #1a1a2e;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    small {
+      color: #888;
+      font-size: 0.78rem;
+    }
+  }
+
+  .lead-meta {
+    small { color: #999; font-size: 0.8rem; }
+  }
+
+  .lead-status {
+    flex-shrink: 0;
+  }
+
+  .lead-arrow {
+    color: #ccc;
+    font-size: 20px;
+  }
+}
+
+// Status badges
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 600;
+
+  &.new { background: #E3F2FD; color: #1565C0; }
+  &.assigned { background: #FFF3E0; color: #E65100; }
+  &.in-progress { background: #F3E5F5; color: #6A1B9A; }
+  &.completed { background: #E8F5E9; color: #2E7D32; }
+  &.cancelled { background: #FFEBEE; color: #B71C1C; }
+}

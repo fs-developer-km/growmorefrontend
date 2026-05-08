@@ -1,0 +1,172 @@
+<div class="eng-dashboard">
+
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="wb-left">
+      <div class="wb-greeting">{{ greeting }} 👋</div>
+      <h1 class="wb-name">{{ getFirstName() }} Bhai!</h1>
+      <p class="wb-sub">Aaj ke kaam dekho aur leads complete karo</p>
+    </div>
+    <div class="wb-right">
+      <div class="wb-illustration">🔧</div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-center" *ngIf="loading">
+    <mat-spinner diameter="44" color="accent"></mat-spinner>
+    <p>Load ho raha hai...</p>
+  </div>
+
+  <div *ngIf="!loading">
+
+    <!-- Stats Grid -->
+    <div class="eng-stats-grid">
+
+      <div class="eng-stat-card" style="--g1: #8B5CF6; --g2: #6366F1;">
+        <div class="esc-icon">📋</div>
+        <div class="esc-body">
+          <span class="esc-num">{{ stats.total }}</span>
+          <span class="esc-label">Total Leads</span>
+        </div>
+        <div class="esc-bg-icon">📋</div>
+      </div>
+
+      <div class="eng-stat-card" style="--g1: #F59E0B; --g2: #EF4444;">
+        <div class="esc-icon">⏰</div>
+        <div class="esc-body">
+          <span class="esc-num">{{ stats.assigned }}</span>
+          <span class="esc-label">Assigned</span>
+        </div>
+        <div class="esc-bg-icon">⏰</div>
+      </div>
+
+      <div class="eng-stat-card" style="--g1: #EC4899; --g2: #8B5CF6;">
+        <div class="esc-icon">🔄</div>
+        <div class="esc-body">
+          <span class="esc-num">{{ stats.inProgress }}</span>
+          <span class="esc-label">In Progress</span>
+        </div>
+        <div class="esc-bg-icon">🔄</div>
+      </div>
+
+      <div class="eng-stat-card" style="--g1: #10B981; --g2: #059669;">
+        <div class="esc-icon">✅</div>
+        <div class="esc-body">
+          <span class="esc-num">{{ stats.completed }}</span>
+          <span class="esc-label">Completed</span>
+        </div>
+        <div class="esc-bg-icon">✅</div>
+      </div>
+
+    </div>
+
+    <!-- Today's Leads -->
+    <div class="eng-section" *ngIf="todayLeads.length > 0">
+      <div class="eng-section-header">
+        <div class="esh-left">
+          <div class="esh-dot today"></div>
+          <h2>Aaj ke Leads 📅</h2>
+        </div>
+        <span class="esh-count">{{ todayLeads.length }} scheduled</span>
+      </div>
+
+      <div class="eng-leads-list">
+        <div
+          class="eng-lead-card today-card"
+          *ngFor="let lead of todayLeads"
+          [routerLink]="['/engineer/leads', lead._id]">
+          <div class="elc-left">
+            <div class="elc-emoji">{{ getApplianceEmoji(lead.applianceType) }}</div>
+            <div class="elc-info">
+              <h3>{{ lead.customer?.name }}</h3>
+              <p>{{ lead.applianceType }} — {{ lead.serviceType }}</p>
+              <div class="elc-meta">
+                <span><mat-icon>phone</mat-icon>{{ lead.customer?.phone }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="elc-right">
+            <span class="eng-badge {{ getBadgeClass(lead.status) }}">{{ lead.status }}</span>
+            <button mat-raised-button class="action-chip"
+              [routerLink]="['/engineer/leads', lead._id]">
+              Dekho →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All My Leads -->
+    <div class="eng-section">
+      <div class="eng-section-header">
+        <div class="esh-left">
+          <div class="esh-dot all"></div>
+          <h2>Meri Saari Leads</h2>
+        </div>
+        <a routerLink="/engineer/leads" class="esh-link">Sab Dekho →</a>
+      </div>
+
+      <!-- Empty State -->
+      <div class="eng-empty" *ngIf="recentLeads.length === 0">
+        <div class="eng-empty-icon">🎉</div>
+        <h3>Koi lead assign nahi hai abhi</h3>
+        <p>Admin aapko lead assign karega — tab yahan dikhega</p>
+      </div>
+
+      <!-- Leads -->
+      <div class="eng-leads-list" *ngIf="recentLeads.length > 0">
+        <div
+          class="eng-lead-card"
+          *ngFor="let lead of recentLeads"
+          [routerLink]="['/engineer/leads', lead._id]">
+
+          <div class="elc-left">
+            <div class="elc-emoji">{{ getApplianceEmoji(lead.applianceType) }}</div>
+            <div class="elc-info">
+              <h3>{{ lead.customer?.name }}</h3>
+              <p>{{ lead.applianceType }} — {{ lead.serviceType }}</p>
+              <div class="elc-meta">
+                <span><mat-icon>phone</mat-icon>{{ lead.customer?.phone }}</span>
+                <span><mat-icon>location_on</mat-icon>{{ lead.customer?.address }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="elc-right">
+            <span class="eng-badge {{ getBadgeClass(lead.status) }}">{{ lead.status }}</span>
+            <small class="elc-date">{{ lead.createdAt | date:'dd MMM' }}</small>
+            <mat-icon class="elc-arrow hide-mobile">chevron_right</mat-icon>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="eng-quick-actions">
+      <div class="eqa-title">⚡ Quick Actions</div>
+      <div class="eqa-grid">
+        <button class="eqa-btn leads" routerLink="/engineer/leads">
+          <span class="eqa-icon">📋</span>
+          <span class="eqa-label">My Leads</span>
+        </button>
+        <button class="eqa-btn job" routerLink="/engineer/leads">
+          <span class="eqa-icon">🔧</span>
+          <span class="eqa-label">Job Card</span>
+        </button>
+        <button class="eqa-btn bill" routerLink="/engineer/bills/create">
+          <span class="eqa-icon">🧾</span>
+          <span class="eqa-label">Bill Banao</span>
+        </button>
+        <a class="eqa-btn wa"
+          href="https://wa.me/"
+          target="_blank">
+          <span class="eqa-icon">💬</span>
+          <span class="eqa-label">WhatsApp</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>

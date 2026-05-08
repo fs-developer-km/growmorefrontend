@@ -1,0 +1,109 @@
+<div class="lead-list-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Leads</h1>
+      <p>Saari leads manage karo</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/admin/leads/add">
+      <mat-icon>add</mat-icon>
+      <span class="hide-mobile">Naya Lead</span>
+    </button>
+  </div>
+
+  <!-- Status Filter Chips -->
+  <div class="filter-chips">
+    <button
+      class="chip-btn"
+      [class.active]="selectedStatus === ''"
+      (click)="filterByStatus('')">
+      Sab ({{ statusCounts.all }})
+    </button>
+    <button
+      class="chip-btn new"
+      [class.active]="selectedStatus === 'New'"
+      (click)="filterByStatus('New')">
+      New ({{ statusCounts['New'] }})
+    </button>
+    <button
+      class="chip-btn assigned"
+      [class.active]="selectedStatus === 'Assigned'"
+      (click)="filterByStatus('Assigned')">
+      Assigned ({{ statusCounts['Assigned'] }})
+    </button>
+    <button
+      class="chip-btn in-progress"
+      [class.active]="selectedStatus === 'In Progress'"
+      (click)="filterByStatus('In Progress')">
+      In Progress ({{ statusCounts['In Progress'] }})
+    </button>
+    <button
+      class="chip-btn completed"
+      [class.active]="selectedStatus === 'Completed'"
+      (click)="filterByStatus('Completed')">
+      Completed ({{ statusCounts['Completed'] }})
+    </button>
+    <button
+      class="chip-btn cancelled"
+      [class.active]="selectedStatus === 'Cancelled'"
+      (click)="filterByStatus('Cancelled')">
+      Cancelled ({{ statusCounts['Cancelled'] }})
+    </button>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Leads load ho rahi hain...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && filteredLeads.length === 0">
+    <mat-icon>assignment_late</mat-icon>
+    <h3>Koi lead nahi mili</h3>
+    <p>Filter change karo ya naya lead add karo</p>
+    <button mat-raised-button color="primary" routerLink="/admin/leads/add">
+      <mat-icon>add</mat-icon> Lead Add Karo
+    </button>
+  </div>
+
+  <!-- Leads List -->
+  <div class="leads-container" *ngIf="!loading && filteredLeads.length > 0">
+    <div
+      class="lead-card"
+      *ngFor="let lead of filteredLeads"
+      [routerLink]="['/admin/leads', lead._id]">
+
+      <div class="lead-left">
+        <div class="appliance-icon">{{ getApplianceEmoji(lead.applianceType) }}</div>
+        <div class="lead-info">
+          <h3>{{ lead.customer?.name }}</h3>
+          <div class="lead-meta">
+            <span><mat-icon>phone</mat-icon>{{ lead.customer?.phone }}</span>
+            <span><mat-icon>build</mat-icon>{{ lead.applianceType }} — {{ lead.serviceType }}</span>
+          </div>
+          <div class="lead-address" *ngIf="lead.address">
+            <mat-icon>location_on</mat-icon>{{ lead.address }}
+          </div>
+        </div>
+      </div>
+
+      <div class="lead-right">
+        <span class="badge {{ getBadgeClass(lead.status) }}">{{ lead.status }}</span>
+        <small *ngIf="lead.assignedTo" class="assigned-to">
+          <mat-icon>engineering</mat-icon>{{ lead.assignedTo?.name }}
+        </small>
+        <small *ngIf="!lead.assignedTo" class="not-assigned">
+          <mat-icon>person_off</mat-icon>Assign nahi hua
+        </small>
+        <small class="lead-date">
+          {{ lead.createdAt | date:'dd MMM, hh:mm a' }}
+        </small>
+        <mat-icon class="arrow-icon hide-mobile">chevron_right</mat-icon>
+      </div>
+
+    </div>
+  </div>
+
+</div>

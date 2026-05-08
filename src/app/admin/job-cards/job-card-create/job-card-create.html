@@ -1,0 +1,177 @@
+<div class="job-create-page">
+
+  <div class="page-top">
+    <div class="page-title">
+      <button mat-icon-button [routerLink]="['/admin/leads', leadId]" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1>Job Card Banao</h1>
+        <p *ngIf="lead">{{ lead.customer?.name }} — {{ lead.applianceType }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead Info Banner -->
+  <div class="lead-banner" *ngIf="lead">
+    <div class="banner-item">
+      <mat-icon>person</mat-icon>
+      <span>{{ lead.customer?.name }}</span>
+    </div>
+    <div class="banner-item">
+      <mat-icon>phone</mat-icon>
+      <span>{{ lead.customer?.phone }}</span>
+    </div>
+    <div class="banner-item">
+      <mat-icon>location_on</mat-icon>
+      <span>{{ lead.address || lead.customer?.address }}</span>
+    </div>
+    <div class="banner-item">
+      <mat-icon>kitchen</mat-icon>
+      <span>{{ lead.applianceType }} — {{ lead.serviceType }}</span>
+    </div>
+  </div>
+
+  <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+
+      <!-- Left Column -->
+      <div class="form-col">
+
+        <!-- Service Info -->
+        <div class="form-card">
+          <div class="card-title">
+            <div class="card-title-icon">🔧</div>
+            <span>Service Details</span>
+          </div>
+
+          <div class="two-col">
+            <mat-form-field appearance="outline">
+              <mat-label>Appliance Type</mat-label>
+              <mat-select formControlName="applianceType">
+                <mat-option *ngFor="let t of applianceTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+              <mat-error>Zaroori hai</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Service Type</mat-label>
+              <mat-select formControlName="serviceType">
+                <mat-option *ngFor="let t of serviceTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+              <mat-error>Zaroori hai</mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Problem Description</mat-label>
+            <textarea matInput formControlName="problemDescription" rows="3"
+              placeholder="Customer ne kya problem batai..."></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Kaam Kya Kiya (Work Done)</mat-label>
+            <textarea matInput formControlName="workDone" rows="4"
+              placeholder="Detail mein likho — kya repair ki, kya fix kiya..."></textarea>
+            <mat-error>Work done zaroori hai</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Remarks (Optional)</mat-label>
+            <textarea matInput formControlName="remarks" rows="2"
+              placeholder="Warranty di, koi special note..."></textarea>
+          </mat-form-field>
+        </div>
+
+      </div>
+
+      <!-- Right Column -->
+      <div class="form-col">
+
+        <!-- Parts Used -->
+        <div class="form-card">
+          <div class="card-title-row">
+            <div class="card-title">
+              <div class="card-title-icon">📦</div>
+              <span>Parts Used</span>
+            </div>
+            <button mat-stroked-button type="button" (click)="addPart()" class="add-part-btn">
+              <mat-icon>add</mat-icon> Part Add Karo
+            </button>
+          </div>
+
+          <div class="no-parts" *ngIf="partsArray.length === 0">
+            <mat-icon>inventory_2</mat-icon>
+            <p>Koi part use nahi hua toh "Part Add Karo" click karo</p>
+          </div>
+
+          <div formArrayName="partsUsed">
+            <div
+              class="part-row"
+              *ngFor="let part of partsArray.controls; let i = index"
+              [formGroupName]="i">
+
+              <mat-form-field appearance="outline" class="part-select">
+                <mat-label>Part Select Karo</mat-label>
+                <mat-select formControlName="partId">
+                  <mat-option *ngFor="let p of parts" [value]="p._id">
+                    {{ p.name }} — ₹{{ p.salePrice }} (Stock: {{ p.stock }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="qty-field">
+                <mat-label>Qty</mat-label>
+                <input matInput type="number" formControlName="quantity" min="1">
+              </mat-form-field>
+
+              <button mat-icon-button type="button" color="warn" (click)="removePart(i)" class="remove-btn">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charges Card -->
+        <div class="form-card">
+          <div class="card-title">
+            <div class="card-title-icon">💰</div>
+            <span>Service Charge</span>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Service Charge (₹)</mat-label>
+            <input matInput type="number" formControlName="serviceCharge" min="0">
+            <span matPrefix>₹&nbsp;</span>
+          </mat-form-field>
+
+          <!-- Total Preview -->
+          <div class="total-preview">
+            <span>Estimated Total</span>
+            <span class="total-amount">₹{{ calculateTotal() }}</span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-card submit-card">
+          <button
+            mat-raised-button
+            type="submit"
+            class="submit-btn"
+            [disabled]="jobForm.invalid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <mat-icon *ngIf="!loading">assignment_turned_in</mat-icon>
+            {{ loading ? 'Ban Raha Hai...' : 'Job Card Save Karo' }}
+          </button>
+          <button mat-stroked-button type="button"
+            [routerLink]="['/admin/leads', leadId]"
+            [disabled]="loading">
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+</div>

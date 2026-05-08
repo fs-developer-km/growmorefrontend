@@ -1,0 +1,189 @@
+<div class="parts-page">
+
+  <!-- Header -->
+  <div class="page-top">
+    <div class="page-title">
+      <h1>Parts Inventory 📦</h1>
+      <p>{{ parts.length }} total parts</p>
+    </div>
+    <button class="add-btn" (click)="openAddForm()">
+      <mat-icon>add</mat-icon>
+      <span class="hide-mobile">Part Add Karo</span>
+    </button>
+  </div>
+
+  <!-- Add/Edit Form Overlay -->
+  <div class="form-overlay" *ngIf="showForm" (click)="closeForm()"></div>
+
+  <div class="slide-form" [class.open]="showForm">
+    <div class="slide-form-header">
+      <h2>{{ editingPart ? 'Part Edit Karo' : 'Naya Part Add Karo' }}</h2>
+      <button mat-icon-button (click)="closeForm()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="partForm" (ngSubmit)="onSubmit()">
+
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Part Ka Naam</mat-label>
+        <input matInput formControlName="name" placeholder="Jaise: AC Gas R32">
+        <mat-icon matPrefix>inventory_2</mat-icon>
+        <mat-error>Naam zaroori hai</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option *ngFor="let cat of categories" [value]="cat">
+            {{ cat }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+      </mat-form-field>
+
+      <div class="two-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Purchase Price (₹)</mat-label>
+          <input matInput type="number" formControlName="purchasePrice" min="0">
+          <span matPrefix>₹&nbsp;</span>
+          <mat-error>Price zaroori hai</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Sale Price (₹)</mat-label>
+          <input matInput type="number" formControlName="salePrice" min="0">
+          <span matPrefix>₹&nbsp;</span>
+          <mat-error>Price zaroori hai</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="two-col">
+        <mat-form-field appearance="outline">
+          <mat-label>Stock</mat-label>
+          <input matInput type="number" formControlName="stock" min="0">
+          <mat-icon matPrefix>warehouse</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Unit</mat-label>
+          <mat-select formControlName="unit">
+            <mat-option *ngFor="let u of units" [value]="u">{{ u }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-w">
+        <mat-label>Low Stock Alert (kitne se kam ho toh alert)</mat-label>
+        <input matInput type="number" formControlName="lowStockAlert" min="0">
+        <mat-icon matPrefix>notifications</mat-icon>
+      </mat-form-field>
+
+      <!-- Profit Preview -->
+      <div class="profit-preview" *ngIf="partForm.get('salePrice')?.value > 0">
+        <span>Profit per unit:</span>
+        <span class="profit-amt">
+          ₹{{ (partForm.get('salePrice')?.value || 0) - (partForm.get('purchasePrice')?.value || 0) }}
+        </span>
+      </div>
+
+      <div class="form-btns">
+        <button mat-stroked-button type="button" (click)="closeForm()" [disabled]="formLoading">
+          Cancel
+        </button>
+        <button mat-raised-button type="submit"
+          class="save-btn"
+          [disabled]="partForm.invalid || formLoading">
+          <mat-spinner diameter="18" *ngIf="formLoading"></mat-spinner>
+          <mat-icon *ngIf="!formLoading">save</mat-icon>
+          {{ formLoading ? 'Saving...' : (editingPart ? 'Update Karo' : 'Add Karo') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && parts.length === 0">
+    <div class="empty-icon">📦</div>
+    <h3>Koi part nahi hai</h3>
+    <p>Pehla spare part add karo inventory mein</p>
+    <button mat-raised-button class="add-btn" (click)="openAddForm()">
+      <mat-icon>add</mat-icon> Part Add Karo
+    </button>
+  </div>
+
+  <!-- Low Stock Warning -->
+  <div class="low-stock-banner" *ngIf="!loading && parts.some(isLowStock.bind(this))">
+    <mat-icon>warning</mat-icon>
+    <span>
+      {{ parts.filter(isLowStock.bind(this)).length }} parts ka stock kam hai!
+    </span>
+  </div>
+
+  <!-- Parts Grid -->
+  <div class="parts-grid" *ngIf="!loading && parts.length > 0">
+    <div
+      class="part-card"
+      *ngFor="let part of parts"
+      [class.low-stock]="isLowStock(part)">
+
+      <!-- Card Header -->
+      <div class="part-header">
+        <div class="part-icon"
+          [style.background]="getCategoryColor(part.category) + '15'"
+          [style.border-color]="getCategoryColor(part.category) + '30'">
+          <span>🔩</span>
+        </div>
+        <div class="part-info">
+          <h3>{{ part.name }}</h3>
+          <span class="category-tag"
+            [style.background]="getCategoryColor(part.category) + '15'"
+            [style.color]="getCategoryColor(part.category)">
+            {{ part.category }}
+          </span>
+        </div>
+        <button mat-icon-button (click)="openEditForm(part)" class="edit-btn">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+
+      <!-- Price Row -->
+      <div class="price-row">
+        <div class="price-item">
+          <span class="price-label">Purchase</span>
+          <span class="price-val">₹{{ part.purchasePrice }}</span>
+        </div>
+        <div class="price-arrow">→</div>
+        <div class="price-item">
+          <span class="price-label">Sale</span>
+          <span class="price-val sale">₹{{ part.salePrice }}</span>
+        </div>
+        <div class="price-item profit">
+          <span class="price-label">Profit</span>
+          <span class="price-val green">+₹{{ getProfit(part) }}</span>
+        </div>
+      </div>
+
+      <!-- Stock Row -->
+      <div class="stock-row" [class.low]="isLowStock(part)">
+        <div class="stock-info">
+          <mat-icon>{{ isLowStock(part) ? 'warning' : 'inventory_2' }}</mat-icon>
+          <span>
+            Stock: <strong>{{ part.stock }} {{ part.unit }}</strong>
+          </span>
+        </div>
+        <span class="stock-badge" [class.low-badge]="isLowStock(part)">
+          {{ isLowStock(part) ? '⚠️ Low Stock' : '✅ Available' }}
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+</div>

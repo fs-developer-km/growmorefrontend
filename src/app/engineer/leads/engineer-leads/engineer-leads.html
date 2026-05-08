@@ -1,0 +1,66 @@
+<div class="eng-leads-page">
+
+  <div class="page-top">
+    <div class="page-title">
+      <h1>My Leads 📋</h1>
+      <p>{{ leads.length }} leads assigned hain tumhe</p>
+    </div>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="filter-chips">
+    <button
+      *ngFor="let f of statusFilters"
+      class="chip-btn"
+      [class.active]="selectedStatus === f.value"
+      (click)="filter(f.value)">
+      {{ f.label }}
+      <span class="chip-count" *ngIf="f.value">
+        {{ leads.filter(l => l.status === f.value).length }}
+      </span>
+    </button>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && filteredLeads.length === 0">
+    <div class="es-icon">📭</div>
+    <h3>Koi lead nahi hai</h3>
+    <p>Admin aapko lead assign karega</p>
+  </div>
+
+  <!-- Leads List -->
+  <div class="eng-leads-list" *ngIf="!loading && filteredLeads.length > 0">
+    <div
+      class="lead-item"
+      *ngFor="let lead of filteredLeads"
+      [routerLink]="['/engineer/leads', lead._id]">
+
+      <div class="li-emoji">{{ getApplianceEmoji(lead.applianceType) }}</div>
+
+      <div class="li-info">
+        <div class="li-top">
+          <h3>{{ lead.customer?.name }}</h3>
+          <span class="eng-badge {{ getBadgeClass(lead.status) }}">{{ lead.status }}</span>
+        </div>
+        <p class="li-service">{{ lead.applianceType }} — {{ lead.serviceType }}</p>
+        <div class="li-meta">
+          <span><mat-icon>phone</mat-icon>{{ lead.customer?.phone }}</span>
+          <span class="hide-mobile"><mat-icon>location_on</mat-icon>{{ lead.address || lead.customer?.address }}</span>
+        </div>
+        <div class="li-date" *ngIf="lead.scheduledDate">
+          <mat-icon>event</mat-icon>
+          {{ lead.scheduledDate | date:'dd MMM yyyy' }}
+        </div>
+      </div>
+
+      <mat-icon class="li-arrow hide-mobile">chevron_right</mat-icon>
+
+    </div>
+  </div>
+
+</div>

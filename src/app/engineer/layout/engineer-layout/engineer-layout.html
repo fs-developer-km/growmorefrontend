@@ -1,0 +1,97 @@
+<mat-sidenav-container class="eng-container">
+
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="!isMobile"
+    class="eng-sidenav">
+
+    <!-- Logo -->
+    <div class="eng-sidebar-header">
+      <div class="eng-logo-wrap">
+        <div class="eng-logo-circle">G</div>
+        <div class="eng-logo-text">
+          <span class="eng-logo-title">GrowMore</span>
+          <span class="eng-logo-sub">Engineer Panel</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engineer Profile -->
+    <div class="eng-profile-card">
+      <div class="eng-profile-avatar">{{ getUserInitials() }}</div>
+      <div class="eng-profile-info">
+        <span class="eng-profile-name">{{ currentUser?.name }}</span>
+        <span class="eng-profile-role">
+          <span class="online-dot"></span>
+          Engineer
+        </span>
+      </div>
+    </div>
+
+    <mat-divider style="border-color: rgba(255,255,255,0.08)"></mat-divider>
+
+    <!-- Nav -->
+    <mat-nav-list class="eng-nav-list">
+      
+        mat-list-item
+        *ngFor="let item of menuItems"
+        [routerLink]="item.route"
+        routerLinkActive="eng-active"
+        class="eng-nav-item"
+        (click)="closeMobile()">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label }}</span>
+      </a>
+    </mat-nav-list>
+
+    <!-- Footer -->
+    <div class="eng-sidebar-footer">
+      <mat-divider style="border-color: rgba(255,255,255,0.08)"></mat-divider>
+      <a mat-list-item class="eng-nav-item eng-logout" (click)="logout()">
+        <mat-icon matListItemIcon>logout</mat-icon>
+        <span matListItemTitle>Logout</span>
+      </a>
+    </div>
+
+  </mat-sidenav>
+
+  <!-- Main -->
+  <mat-sidenav-content class="eng-main">
+
+    <!-- Toolbar -->
+    <mat-toolbar class="eng-toolbar">
+      <button mat-icon-button (click)="toggleSidenav()" class="eng-menu-btn">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="eng-page-title">{{ currentPageTitle }}</span>
+      <span class="eng-spacer"></span>
+
+      <button mat-button [matMenuTriggerFor]="userMenu" class="eng-user-btn">
+        <div class="eng-toolbar-avatar">{{ getUserInitials() }}</div>
+        <span class="hide-mobile">{{ currentUser?.name }}</span>
+        <mat-icon>expand_more</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <div class="eng-menu-header">
+          <div class="eng-menu-avatar">{{ getUserInitials() }}</div>
+          <div>
+            <strong>{{ currentUser?.name }}</strong>
+            <small>Engineer</small>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon> Logout
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <div class="eng-content">
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

@@ -1,0 +1,223 @@
+<div class="bill-detail-page">
+
+  <!-- Header -->
+  <div class="page-top">
+    <div class="page-title">
+      <button mat-icon-button routerLink="/admin/bills" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1>Bill Detail</h1>
+        <p *ngIf="bill">{{ bill.billNumber }}</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="bill">
+      <span class="payment-badge {{ getPaymentBadge(bill.paymentStatus) }}">
+        {{ bill.paymentStatus }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <div class="detail-layout" *ngIf="!loading && bill">
+
+    <!-- LEFT — Bill Preview -->
+    <div class="left-col">
+
+      <!-- Bill Preview Card -->
+      <div class="bill-preview-card">
+
+        <!-- Bill Header -->
+        <div class="bill-header">
+          <div class="company-info">
+            <div class="company-logo">G</div>
+            <div>
+              <h2>GrowMore Appliances</h2>
+              <p>Home Appliance Service</p>
+            </div>
+          </div>
+          <div class="bill-meta-right">
+            <div class="bill-num-large">{{ bill.billNumber }}</div>
+            <div class="bill-date-text">
+              {{ bill.createdAt | date:'dd MMM yyyy' }}
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Customer Info -->
+        <div class="bill-customer">
+          <div class="bc-label">Bill To:</div>
+          <div class="bc-name">{{ bill.customer?.name }}</div>
+          <div class="bc-phone">📞 {{ bill.customer?.phone }}</div>
+          <div class="bc-address" *ngIf="bill.customer?.address">
+            📍 {{ bill.customer?.address }}
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Parts Table -->
+        <div class="bill-items">
+          <div class="items-header">
+            <span class="i-name">Item</span>
+            <span class="i-qty">Qty</span>
+            <span class="i-rate">Rate</span>
+            <span class="i-total">Total</span>
+          </div>
+
+          <div class="item-row" *ngFor="let part of bill.partsUsed">
+            <span class="i-name">{{ part.partName }}</span>
+            <span class="i-qty">{{ part.quantity }}</span>
+            <span class="i-rate">₹{{ part.salePrice }}</span>
+            <span class="i-total">₹{{ part.totalPrice }}</span>
+          </div>
+
+          <div class="item-row service-row" *ngIf="bill.serviceCharge > 0">
+            <span class="i-name">Service Charge</span>
+            <span class="i-qty">1</span>
+            <span class="i-rate">₹{{ bill.serviceCharge }}</span>
+            <span class="i-total">₹{{ bill.serviceCharge }}</span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Totals -->
+        <div class="bill-totals">
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span>₹{{ bill.subtotal }}</span>
+          </div>
+          <div class="total-row gst" *ngIf="bill.gstAmount > 0">
+            <span>GST ({{ bill.gstPercent }}%)</span>
+            <span>₹{{ bill.gstAmount }}</span>
+          </div>
+          <div class="total-row discount" *ngIf="bill.discount > 0">
+            <span>Discount</span>
+            <span>-₹{{ bill.discount }}</span>
+          </div>
+          <div class="total-row grand">
+            <span>Grand Total</span>
+            <span>₹{{ bill.grandTotal }}</span>
+          </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="payment-info-row">
+          <span class="pi-method">
+            💳 {{ bill.paymentMethod }}
+          </span>
+          <span class="payment-badge {{ getPaymentBadge(bill.paymentStatus) }}">
+            {{ bill.paymentStatus }}
+          </span>
+        </div>
+
+        <!-- Footer -->
+        <div class="bill-footer">
+          <p>Shukriya GrowMore Appliances choose karne ke liye! 🙏</p>
+          <small *ngIf="bill.notes">Note: {{ bill.notes }}</small>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT — Actions -->
+    <div class="right-col">
+
+      <!-- Download + Share -->
+      <div class="action-card">
+        <div class="ac-title">
+          <span>⚡</span>
+          <span>Quick Actions</span>
+        </div>
+
+        <!-- PDF Download -->
+        <button class="action-btn pdf-btn" (click)="downloadPdf()" [disabled]="downloadingPdf">
+          <mat-spinner diameter="18" *ngIf="downloadingPdf"></mat-spinner>
+          <mat-icon *ngIf="!downloadingPdf">picture_as_pdf</mat-icon>
+          <span>{{ downloadingPdf ? 'Download Ho Raha Hai...' : 'PDF Download Karo' }}</span>
+        </button>
+
+        <!-- WhatsApp Share -->
+        <button class="action-btn wa-btn" (click)="shareOnWhatsApp()" [disabled]="gettingWaLink">
+          <mat-spinner diameter="18" *ngIf="gettingWaLink"></mat-spinner>
+          <mat-icon *ngIf="!gettingWaLink">message</mat-icon>
+          <span>{{ gettingWaLink ? 'Link Mil Raha Hai...' : 'WhatsApp Pe Bhejo' }}</span>
+          <span class="sent-chip" *ngIf="bill.whatsappSent">Sent ✅</span>
+        </button>
+
+        <!-- WhatsApp Direct -->
+        <a class="action-btn wa-direct-btn"
+          [href]="'https://wa.me/91' + bill.customer?.phone"
+          target="_blank">
+          <mat-icon>phone</mat-icon>
+          <span>Direct WhatsApp Call</span>
+        </a>
+
+      </div>
+
+      <!-- Update Payment Status -->
+      <div class="action-card">
+        <div class="ac-title">
+          <span>💳</span>
+          <span>Payment Update Karo</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Payment Status</mat-label>
+          <mat-select [(ngModel)]="selectedPaymentStatus">
+            <mat-option value="Pending">Pending</mat-option>
+            <mat-option value="Paid">Paid ✅</mat-option>
+            <mat-option value="Partial">Partial</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Payment Method</mat-label>
+          <mat-select [(ngModel)]="selectedPaymentMethod">
+            <mat-option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button class="action-btn update-btn" (click)="updatePayment()" [disabled]="updatingPayment">
+          <mat-spinner diameter="18" *ngIf="updatingPayment"></mat-spinner>
+          <mat-icon *ngIf="!updatingPayment">save</mat-icon>
+          <span>{{ updatingPayment ? 'Update Ho Raha Hai...' : 'Payment Update Karo' }}</span>
+        </button>
+      </div>
+
+      <!-- Bill Info -->
+      <div class="action-card info-only">
+        <div class="ac-title">
+          <span>📋</span>
+          <span>Bill Info</span>
+        </div>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="i-label">Bill No</span>
+            <span class="i-val">{{ bill.billNumber }}</span>
+          </div>
+          <div class="info-row">
+            <span class="i-label">Date</span>
+            <span class="i-val">{{ bill.createdAt | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="i-label">Banaya</span>
+            <span class="i-val">{{ bill.createdBy?.name || 'Admin' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="i-label">WA Sent</span>
+            <span class="i-val">{{ bill.whatsappSent ? 'Haan ✅' : 'Nahi' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

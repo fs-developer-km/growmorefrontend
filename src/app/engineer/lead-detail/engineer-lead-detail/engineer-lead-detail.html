@@ -1,0 +1,132 @@
+<div class="eng-lead-detail">
+
+  <div class="page-top">
+    <button mat-icon-button routerLink="/engineer/leads" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Lead Detail</h1>
+      <p *ngIf="lead">{{ lead.customer?.name }}</p>
+    </div>
+    <span class="eng-badge {{ getBadgeClass(lead?.status) }}" *ngIf="lead" style="margin-left: auto;">
+      {{ lead.status }}
+    </span>
+  </div>
+
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div class="detail-layout" *ngIf="!loading && lead">
+
+    <!-- Left -->
+    <div class="left-col">
+
+      <!-- Customer Card -->
+      <div class="detail-card">
+        <div class="dc-header">
+          <span class="dc-icon">👤</span>
+          <span>Customer Info</span>
+        </div>
+
+        <div class="customer-profile">
+          <div class="cp-avatar">{{ lead.customer?.name?.charAt(0) }}</div>
+          <div class="cp-info">
+            <h2>{{ lead.customer?.name }}</h2>
+            <a [href]="'tel:' + lead.customer?.phone" class="call-btn">
+              <mat-icon>phone</mat-icon>
+              {{ lead.customer?.phone }}
+            </a>
+          </div>
+        </div>
+
+        <div class="info-rows">
+          <div class="info-row" *ngIf="lead.address || lead.customer?.address">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ lead.address || lead.customer?.address }}</span>
+          </div>
+          <div class="info-row">
+            <mat-icon>kitchen</mat-icon>
+            <span>{{ getApplianceEmoji(lead.applianceType) }} {{ lead.applianceType }}</span>
+          </div>
+          <div class="info-row">
+            <mat-icon>build</mat-icon>
+            <span>{{ lead.serviceType }}</span>
+          </div>
+          <div class="info-row" *ngIf="lead.description">
+            <mat-icon>description</mat-icon>
+            <span>{{ lead.description }}</span>
+          </div>
+          <div class="info-row" *ngIf="lead.scheduledDate">
+            <mat-icon>event</mat-icon>
+            <span>{{ lead.scheduledDate | date:'dd MMM yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right -->
+    <div class="right-col">
+
+      <!-- Status Update -->
+      <div class="action-card">
+        <div class="dc-header">
+          <span class="dc-icon">🔄</span>
+          <span>Status Update Karo</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Status Select Karo</mat-label>
+          <mat-select [(ngModel)]="selectedStatus">
+            <mat-option *ngFor="let s of statusOptions" [value]="s">{{ s }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Remarks (Optional)</mat-label>
+          <textarea matInput [(ngModel)]="remarks" rows="2"
+            placeholder="Koi note add karo..."></textarea>
+        </mat-form-field>
+
+        <button class="eng-action-btn update" (click)="updateStatus()" [disabled]="updatingStatus">
+          <mat-spinner diameter="18" *ngIf="updatingStatus"></mat-spinner>
+          <mat-icon *ngIf="!updatingStatus">save</mat-icon>
+          {{ updatingStatus ? 'Update Ho Raha...' : 'Status Update Karo' }}
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-card">
+        <div class="dc-header">
+          <span class="dc-icon">⚡</span>
+          <span>Actions</span>
+        </div>
+
+        <button class="eng-action-btn job-btn" (click)="goToJobCard()">
+          <mat-icon>assignment</mat-icon>
+          Job Card Banao
+        </button>
+
+        <button class="eng-action-btn bill-btn" (click)="goToBill()">
+          <mat-icon>receipt_long</mat-icon>
+          Bill Banao
+        </button>
+
+        <a class="eng-action-btn wa-btn"
+          [href]="'https://wa.me/91' + lead.customer?.phone"
+          target="_blank">
+          <mat-icon>message</mat-icon>
+          WhatsApp Karo
+        </a>
+
+        <a class="eng-action-btn call-btn-action"
+          [href]="'tel:' + lead.customer?.phone">
+          <mat-icon>phone</mat-icon>
+          Call Karo
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>

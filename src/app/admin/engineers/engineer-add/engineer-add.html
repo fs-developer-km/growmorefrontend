@@ -1,0 +1,67 @@
+<div class="engineer-add-page">
+
+  <div class="page-header">
+    <button mat-icon-button routerLink="/admin/engineers">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Engineer Add Karo</h1>
+      <p>Naye engineer ki details bharo</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="engineerForm" (ngSubmit)="onSubmit()">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Naam</mat-label>
+        <input matInput formControlName="name" placeholder="Engineer ka poora naam">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-error *ngIf="engineerForm.get('name')?.hasError('required')">Naam zaroori hai</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Phone Number</mat-label>
+        <input matInput formControlName="phone" placeholder="10 digit" maxlength="10" type="tel">
+        <mat-icon matPrefix>phone</mat-icon>
+        <mat-error *ngIf="engineerForm.get('phone')?.hasError('required')">Phone zaroori hai</mat-error>
+        <mat-error *ngIf="engineerForm.get('phone')?.hasError('pattern')">Sahi number daalo</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" [type]="showPassword ? 'text' : 'password'" placeholder="Min 6 characters">
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword">
+          <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="engineerForm.get('password')?.hasError('required')">Password zaroori hai</mat-error>
+        <mat-error *ngIf="engineerForm.get('password')?.hasError('minlength')">Min 6 characters chahiye</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email (Optional)</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="email@example.com">
+        <mat-icon matPrefix>email</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Address (Optional)</mat-label>
+        <textarea matInput formControlName="address" rows="2" placeholder="Engineer ka address"></textarea>
+        <mat-icon matPrefix>location_on</mat-icon>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button mat-stroked-button type="button" routerLink="/admin/engineers" [disabled]="loading">
+          Cancel
+        </button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="engineerForm.invalid || loading">
+          <mat-spinner diameter="18" *ngIf="loading"></mat-spinner>
+          <mat-icon *ngIf="!loading">person_add</mat-icon>
+          {{ loading ? 'Add Ho Raha Hai...' : 'Engineer Add Karo' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

@@ -1,0 +1,137 @@
+<div class="lead-add-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button mat-icon-button routerLink="/admin/leads">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Naya Lead Add Karo</h1>
+      <p>Customer aur service ki details bharo</p>
+    </div>
+  </div>
+
+  <div class="form-layout">
+
+    <!-- Customer Details -->
+    <div class="form-section">
+      <div class="section-title">
+        <mat-icon>person</mat-icon>
+        <span>Customer Details</span>
+      </div>
+
+      <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Customer Ka Naam</mat-label>
+            <input matInput formControlName="customerName" placeholder="Jaise: Ramesh Kumar">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error *ngIf="leadForm.get('customerName')?.hasError('required')">
+              Naam zaroori hai
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="customerPhone" placeholder="10 digit number" maxlength="10" type="tel">
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error *ngIf="leadForm.get('customerPhone')?.hasError('required')">
+              Phone zaroori hai
+            </mat-error>
+            <mat-error *ngIf="leadForm.get('customerPhone')?.hasError('pattern')">
+              Sahi 10 digit number daalo
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Ghar Ka Pata</mat-label>
+            <textarea matInput formControlName="customerAddress" rows="2" placeholder="Poora address likho"></textarea>
+            <mat-icon matPrefix>location_on</mat-icon>
+            <mat-error *ngIf="leadForm.get('customerAddress')?.hasError('required')">
+              Address zaroori hai
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Area / Colony</mat-label>
+            <input matInput formControlName="area" placeholder="Jaise: Shivalik Nagar">
+            <mat-icon matPrefix>map</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="section-title" style="margin-top: 8px;">
+          <mat-icon>build</mat-icon>
+          <span>Service Details</span>
+        </div>
+
+        <div class="form-row two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Appliance Type</mat-label>
+            <mat-select formControlName="applianceType">
+              <mat-option *ngFor="let type of applianceTypes" [value]="type">
+                {{ type }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>kitchen</mat-icon>
+            <mat-error *ngIf="leadForm.get('applianceType')?.hasError('required')">
+              Appliance select karo
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Service Type</mat-label>
+            <mat-select formControlName="serviceType">
+              <mat-option *ngFor="let type of serviceTypes" [value]="type">
+                {{ type }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>miscellaneous_services</mat-icon>
+            <mat-error *ngIf="leadForm.get('serviceType')?.hasError('required')">
+              Service type select karo
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Problem Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"
+              placeholder="Customer ne kya problem batai? Detail mein likho..."></textarea>
+            <mat-icon matPrefix>description</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Scheduled Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="scheduledDate">
+            <mat-icon matPrefix>calendar_today</mat-icon>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="form-actions">
+          <button mat-stroked-button type="button" routerLink="/admin/leads" [disabled]="loading">
+            Cancel
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="leadForm.invalid || loading">
+            <mat-spinner diameter="18" *ngIf="loading"></mat-spinner>
+            <mat-icon *ngIf="!loading">check</mat-icon>
+            <span>{{ loading ? 'Save Ho Raha Hai...' : 'Lead Save Karo' }}</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>

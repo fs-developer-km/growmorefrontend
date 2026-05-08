@@ -1,0 +1,153 @@
+<div class="customer-detail-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button mat-icon-button routerLink="/admin/customers">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Customer Profile</h1>
+      <p>Customer ki poori history</p>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && customer" class="detail-layout">
+
+    <!-- Left — Customer Info -->
+    <div class="left-col">
+
+      <!-- Profile Card -->
+      <div class="profile-card">
+        <div class="profile-top">
+          <div class="big-avatar">{{ getInitials(customer.name) }}</div>
+          <div class="profile-info">
+            <h2>{{ customer.name }}</h2>
+            <a href="tel:{{ customer.phone }}" class="phone-link">
+              <mat-icon>phone</mat-icon> {{ customer.phone }}
+            </a>
+            <a href="tel:{{ customer.alternatePhone }}" class="phone-link" *ngIf="customer.alternatePhone">
+              <mat-icon>phone_forwarded</mat-icon> {{ customer.alternatePhone }}
+            </a>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="detail-rows">
+          <div class="detail-row" *ngIf="customer.address">
+            <span class="label"><mat-icon>location_on</mat-icon> Address</span>
+            <span class="value">{{ customer.address }}</span>
+          </div>
+          <div class="detail-row" *ngIf="customer.area">
+            <span class="label"><mat-icon>map</mat-icon> Area</span>
+            <span class="value">{{ customer.area }}, {{ customer.city }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label"><mat-icon>calendar_today</mat-icon> Joined</span>
+            <span class="value">{{ customer.createdAt | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="detail-row" *ngIf="customer.notes">
+            <span class="label"><mat-icon>notes</mat-icon> Notes</span>
+            <span class="value">{{ customer.notes }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Card -->
+      <div class="stats-card">
+        <div class="stat-item">
+          <span class="stat-num">{{ leads.length }}</span>
+          <span class="stat-label">Total Visits</span>
+        </div>
+        <div class="divider-v"></div>
+        <div class="stat-item">
+          <span class="stat-num">{{ getTotalCompleted() }}</span>
+          <span class="stat-label">Completed</span>
+        </div>
+        <div class="divider-v"></div>
+        <div class="stat-item">
+          <span class="stat-num">{{ leads.length - getTotalCompleted() }}</span>
+          <span class="stat-label">Pending</span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="action-card">
+        <h3>Quick Actions</h3>
+        <div class="action-btns">
+          <a mat-raised-button color="primary"
+            [href]="'https://wa.me/91' + customer.phone"
+            target="_blank">
+            <mat-icon>message</mat-icon> WhatsApp
+          </a>
+          <a mat-stroked-button
+            [href]="'tel:' + customer.phone">
+            <mat-icon>phone</mat-icon> Call Karo
+          </a>
+          <button mat-stroked-button color="primary"
+            [routerLink]="['/admin/leads/add']">
+            <mat-icon>add</mat-icon> Naya Lead
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right — Lead History -->
+    <div class="right-col">
+      <div class="history-card">
+        <div class="history-header">
+          <h2>Service History</h2>
+          <span class="count-badge">{{ leads.length }} visits</span>
+        </div>
+
+        <!-- No History -->
+        <div class="empty-history" *ngIf="leads.length === 0">
+          <mat-icon>history</mat-icon>
+          <p>Koi service history nahi hai</p>
+        </div>
+
+        <!-- Lead Timeline -->
+        <div class="timeline" *ngIf="leads.length > 0">
+          <div class="timeline-item" *ngFor="let lead of leads">
+
+            <div class="timeline-dot" [ngClass]="getBadgeClass(lead.status)"></div>
+
+            <div class="timeline-content" [routerLink]="['/admin/leads', lead._id]">
+              <div class="timeline-header">
+                <span class="appliance">
+                  {{ getApplianceEmoji(lead.applianceType) }} {{ lead.applianceType }}
+                </span>
+                <span class="badge {{ getBadgeClass(lead.status) }}">{{ lead.status }}</span>
+              </div>
+
+              <div class="timeline-body">
+                <p class="service-type">
+                  <mat-icon>build</mat-icon> {{ lead.serviceType }}
+                </p>
+                <p class="description" *ngIf="lead.description">{{ lead.description }}</p>
+                <div class="timeline-footer">
+                  <small *ngIf="lead.assignedTo">
+                    <mat-icon>engineering</mat-icon> {{ lead.assignedTo?.name }}
+                  </small>
+                  <small>
+                    <mat-icon>calendar_today</mat-icon>
+                    {{ lead.createdAt | date:'dd MMM yyyy' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

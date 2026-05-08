@@ -1,0 +1,95 @@
+<div class="login-wrapper">
+
+  <div class="login-left">
+    <div class="brand">
+      <div class="brand-icon">⚙️</div>
+      <h1>GrowMore</h1>
+      <p>Appliances Service Management</p>
+    </div>
+    <div class="features">
+      <div class="feature-item">
+        <span class="f-icon">📋</span>
+        <span>Lead Management</span>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">👷</span>
+        <span>Engineer Assignment</span>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">🧾</span>
+        <span>Instant Bill Generation</span>
+      </div>
+      <div class="feature-item">
+        <span class="f-icon">📲</span>
+        <span>WhatsApp Bill Share</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <mat-card class="login-card">
+
+      <mat-card-header>
+        <mat-card-title>Welcome Back 👋</mat-card-title>
+        <mat-card-subtitle>Apne account mein login karo</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Phone Number</mat-label>
+            <input
+              matInput
+              formControlName="phone"
+              placeholder="10 digit number"
+              maxlength="10"
+              type="tel">
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error *ngIf="loginForm.get('phone')?.hasError('required')">
+              Phone number zaroori hai
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('phone')?.hasError('pattern')">
+              Sahi 10 digit number daalo
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input
+              matInput
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Password daalo">
+            <mat-icon matPrefix>lock</mat-icon>
+            <button mat-icon-button matSuffix type="button"
+              (click)="showPassword = !showPassword">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+              Password zaroori hai
+            </mat-error>
+          </mat-form-field>
+
+          <div class="error-msg" *ngIf="errorMsg">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ errorMsg }}</span>
+          </div>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="login-btn"
+            [disabled]="loginForm.invalid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <span *ngIf="!loading">Login Karo</span>
+          </button>
+
+        </form>
+      </mat-card-content>
+
+    </mat-card>
+  </div>
+
+</div>

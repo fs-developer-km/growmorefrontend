@@ -1,0 +1,169 @@
+<div class="lead-detail-page">
+
+  <!-- Back Button -->
+  <div class="page-header">
+    <button mat-icon-button routerLink="/admin/leads">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Lead Detail</h1>
+      <p>Lead ki poori information</p>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && lead" class="detail-grid">
+
+    <!-- Left Column -->
+    <div class="left-col">
+
+      <!-- Customer Info Card -->
+      <div class="info-card">
+        <div class="card-header">
+          <mat-icon>person</mat-icon>
+          <span>Customer Details</span>
+          <span class="badge {{ getBadgeClass(lead.status) }}">{{ lead.status }}</span>
+        </div>
+
+        <div class="customer-profile">
+          <div class="customer-avatar">{{ lead.customer?.name?.charAt(0) }}</div>
+          <div class="customer-info">
+            <h2>{{ lead.customer?.name }}</h2>
+            <a href="tel:{{ lead.customer?.phone }}" class="phone-link">
+              <mat-icon>phone</mat-icon> {{ lead.customer?.phone }}
+            </a>
+          </div>
+        </div>
+
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="label"><mat-icon>location_on</mat-icon> Address</span>
+            <span class="value">{{ lead.address || lead.customer?.address || '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label"><mat-icon>kitchen</mat-icon> Appliance</span>
+            <span class="value">{{ getApplianceEmoji(lead.applianceType) }} {{ lead.applianceType }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label"><mat-icon>build</mat-icon> Service</span>
+            <span class="value">{{ lead.serviceType }}</span>
+          </div>
+          <div class="info-row" *ngIf="lead.description">
+            <span class="label"><mat-icon>description</mat-icon> Problem</span>
+            <span class="value">{{ lead.description }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label"><mat-icon>calendar_today</mat-icon> Date</span>
+            <span class="value">{{ lead.createdAt | date:'dd MMM yyyy, hh:mm a' }}</span>
+          </div>
+          <div class="info-row" *ngIf="lead.scheduledDate">
+            <span class="label"><mat-icon>event</mat-icon> Scheduled</span>
+            <span class="value">{{ lead.scheduledDate | date:'dd MMM yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Engineer Assigned Info -->
+      <div class="info-card" *ngIf="lead.assignedTo">
+        <div class="card-header">
+          <mat-icon>engineering</mat-icon>
+          <span>Assigned Engineer</span>
+        </div>
+        <div class="engineer-profile">
+          <div class="eng-avatar">{{ lead.assignedTo?.name?.charAt(0) }}</div>
+          <div>
+            <h3>{{ lead.assignedTo?.name }}</h3>
+            <a href="tel:{{ lead.assignedTo?.phone }}" class="phone-link">
+              <mat-icon>phone</mat-icon> {{ lead.assignedTo?.phone }}
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-col">
+
+      <!-- Assign Engineer Card -->
+      <div class="action-card">
+        <div class="card-header">
+          <mat-icon>assignment_ind</mat-icon>
+          <span>Engineer Assign Karo</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Engineer Select Karo</mat-label>
+          <mat-select [(ngModel)]="selectedEngineerId">
+            <mat-option value="">-- Select karo --</mat-option>
+            <mat-option *ngFor="let eng of engineers" [value]="eng._id">
+              {{ eng.name }} — {{ eng.phone }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" class="full-width action-btn" (click)="assignEngineer()"
+          [disabled]="assigning || !selectedEngineerId">
+          <mat-spinner diameter="18" *ngIf="assigning"></mat-spinner>
+          <mat-icon *ngIf="!assigning">assignment_turned_in</mat-icon>
+          <span>{{ assigning ? 'Assign Ho Raha Hai...' : 'Engineer Assign Karo' }}</span>
+        </button>
+      </div>
+
+      <!-- Update Status Card -->
+      <div class="action-card">
+        <div class="card-header">
+          <mat-icon>update</mat-icon>
+          <span>Status Update Karo</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Naya Status</mat-label>
+          <mat-select [(ngModel)]="selectedStatus">
+            <mat-option *ngFor="let s of statusOptions" [value]="s">
+              {{ s }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Remarks (Optional)</mat-label>
+          <textarea matInput [(ngModel)]="remarks" rows="2" placeholder="Koi baat add karni ho toh likho...">
+    </textarea>
+        </mat-form-field>
+
+        <button mat-raised-button color="accent" class="full-width action-btn" (click)="updateStatus()"
+          [disabled]="updatingStatus">
+          <mat-spinner diameter="18" *ngIf="updatingStatus"></mat-spinner>
+          <mat-icon *ngIf="!updatingStatus">save</mat-icon>
+          <span>{{ updatingStatus ? 'Update Ho Raha Hai...' : 'Status Update Karo' }}</span>
+        </button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="action-card">
+        <div class="card-header">
+          <mat-icon>flash_on</mat-icon>
+          <span>Quick Actions</span>
+        </div>
+        <div class="quick-btns">
+          <button mat-stroked-button color="primary" class="full-width" [routerLink]="['/admin/jobs/create', lead._id]">
+            <mat-icon>assignment</mat-icon> Job Card Banao
+          </button>
+          <button mat-stroked-button color="primary" class="full-width">
+            <mat-icon>receipt_long</mat-icon> Bill Banao
+          </button>
+          <a mat-stroked-button [href]="'https://wa.me/91' + lead.customer?.phone" target="_blank"
+            class="full-width wa-btn">
+            <mat-icon>message</mat-icon> WhatsApp Karo
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

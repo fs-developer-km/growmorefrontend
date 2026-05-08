@@ -1,1 +1,154 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  background: #F0F4FF;
+}
+
+// ===== SCROLLBAR =====
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#6366F1, #8B5CF6);
+  border-radius: 4px;
+}
+
+// ===== TOAST =====
+.toast-success {
+  background: linear-gradient(135deg, #059669, #10B981) !important;
+  color: white !important;
+  border-radius: 14px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 500 !important;
+  box-shadow: 0 8px 32px rgba(16,185,129,0.3) !important;
+}
+.toast-error {
+  background: linear-gradient(135deg, #DC2626, #EF4444) !important;
+  color: white !important;
+  border-radius: 14px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 500 !important;
+  box-shadow: 0 8px 32px rgba(239,68,68,0.3) !important;
+}
+.toast-info {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6) !important;
+  color: white !important;
+  border-radius: 14px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 500 !important;
+  box-shadow: 0 8px 32px rgba(99,102,241,0.3) !important;
+}
+
+// ===== GLOBAL CARD =====
+.g-card {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid rgba(99,102,241,0.08);
+  box-shadow: 0 4px 24px rgba(99,102,241,0.06);
+  transition: all 0.3s ease;
+}
+
+// ===== GLOBAL PAGE HEADER =====
+.page-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+
+  .page-title {
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1E1B4B, #6366F1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    p {
+      color: #94A3B8;
+      font-size: 0.85rem;
+      margin-top: 4px;
+      font-weight: 400;
+    }
+  }
+}
+
+// ===== GLOBAL BADGE =====
+.badge {
+  padding: 5px 14px;
+  border-radius: 30px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+
+  &.new {
+    background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+    color: #4F46E5;
+    border: 1px solid #C7D2FE;
+  }
+  &.assigned {
+    background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+    color: #EA580C;
+    border: 1px solid #FED7AA;
+  }
+  &.in-progress {
+    background: linear-gradient(135deg, #FAF5FF, #F3E8FF);
+    color: #9333EA;
+    border: 1px solid #E9D5FF;
+  }
+  &.completed {
+    background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+    color: #16A34A;
+    border: 1px solid #BBF7D0;
+  }
+  &.cancelled {
+    background: linear-gradient(135deg, #FFF1F2, #FFE4E6);
+    color: #E11D48;
+    border: 1px solid #FECDD3;
+  }
+  &.pending {
+    background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+    color: #D97706;
+    border: 1px solid #FDE68A;
+  }
+  &.paid {
+    background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+    color: #16A34A;
+    border: 1px solid #BBF7D0;
+  }
+}
+
+// ===== GLOBAL BTN =====
+.btn-primary {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  border: none !important;
+  font-weight: 600 !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  box-shadow: 0 4px 15px rgba(99,102,241,0.3) !important;
+  transition: all 0.3s !important;
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba(99,102,241,0.4) !important;
+    transform: translateY(-1px);
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 600px) {
+  .hide-mobile { display: none !important; }
+}
+@media (min-width: 601px) {
+  .hide-desktop { display: none !important; }
+}

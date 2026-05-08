@@ -1,0 +1,95 @@
+<div class="customer-list-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Customers</h1>
+      <p>{{ totalCustomers }} total customers</p>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Naam ya Phone se search karo</mat-label>
+      <input
+        matInput
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearch($event)"
+        placeholder="Jaise: Ramesh ya 9876543210">
+      <mat-icon matPrefix>search</mat-icon>
+      <button mat-icon-button matSuffix *ngIf="searchQuery" (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-wrap" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Customers load ho rahe hain...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && customers.length === 0">
+    <mat-icon>people_outline</mat-icon>
+    <h3 *ngIf="!searchQuery">Koi customer nahi hai abhi</h3>
+    <h3 *ngIf="searchQuery">"{{ searchQuery }}" se koi customer nahi mila</h3>
+    <p *ngIf="searchQuery">Alag naam ya phone try karo</p>
+    <button mat-stroked-button (click)="clearSearch()" *ngIf="searchQuery">
+      <mat-icon>clear</mat-icon> Search Clear Karo
+    </button>
+  </div>
+
+  <!-- Customer Grid -->
+  <div class="customer-grid" *ngIf="!loading && customers.length > 0">
+    <div
+      class="customer-card"
+      *ngFor="let customer of customers"
+      [routerLink]="['/admin/customers', customer._id]">
+
+      <!-- Avatar -->
+      <div class="customer-avatar" [style.background]="getAvatarColor(customer.name)">
+        {{ getInitials(customer.name) }}
+      </div>
+
+      <!-- Info -->
+      <div class="customer-info">
+        <h3>{{ customer.name }}</h3>
+
+        <div class="info-row">
+          <mat-icon>phone</mat-icon>
+          <span>{{ customer.phone }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="customer.alternatePhone">
+          <mat-icon>phone_forwarded</mat-icon>
+          <span>{{ customer.alternatePhone }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="customer.address">
+          <mat-icon>location_on</mat-icon>
+          <span>{{ customer.address }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="customer.area">
+          <mat-icon>map</mat-icon>
+          <span>{{ customer.area }}, {{ customer.city }}</span>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="customer-footer">
+        <small class="joined-date">
+          <mat-icon>calendar_today</mat-icon>
+          {{ customer.createdAt | date:'dd MMM yyyy' }}
+        </small>
+        <button mat-icon-button color="primary">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
