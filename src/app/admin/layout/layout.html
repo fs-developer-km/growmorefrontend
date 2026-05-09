@@ -3,7 +3,7 @@
   <!-- Sidebar -->
   <mat-sidenav #sidenav [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="sidenav">
 
-    <!-- Logo Area -->
+    <!-- Logo -->
     <div class="sidebar-header">
       <div class="logo-wrap">
         <div class="logo-circle">G</div>
@@ -23,21 +23,22 @@
       </div>
     </div>
 
-    <mat-divider></mat-divider>
-
-    <!-- Nav Items -->
+    <!-- Nav -->
     <mat-nav-list class="nav-list">
-
-      <a mat-list-item *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active-link"
-        class="nav-item" (click)="closeSidenavOnMobile()">
+      <div class="nav-section-label">Navigation</div>
+      <a mat-list-item
+         *ngFor="let item of menuItems"
+         [routerLink]="item.route"
+         routerLinkActive="active-link"
+         class="nav-item"
+         (click)="closeSidenavOnMobile()">
         <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
         <span matListItemTitle>{{ item.label }}</span>
       </a>
     </mat-nav-list>
 
-    <!-- Sidebar Footer -->
+    <!-- Footer -->
     <div class="sidebar-footer">
-      <mat-divider></mat-divider>
       <a mat-list-item class="nav-item logout-item" (click)="logout()">
         <mat-icon matListItemIcon>logout</mat-icon>
         <span matListItemTitle>Logout</span>
@@ -46,26 +47,21 @@
 
   </mat-sidenav>
 
-  <!-- Main Content -->
+  <!-- Main -->
   <mat-sidenav-content class="main-content">
 
-    <!-- Top Toolbar -->
+    <!-- Toolbar -->
     <mat-toolbar class="top-toolbar">
       <button mat-icon-button (click)="toggleSidenav()" class="menu-btn">
         <mat-icon>menu</mat-icon>
       </button>
-
       <span class="page-title">{{ currentPageTitle }}</span>
-
       <span class="spacer"></span>
-
-      <!-- User Menu -->
       <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
         <div class="toolbar-avatar">{{ getUserInitials() }}</div>
         <span class="toolbar-name hide-mobile">{{ currentUser?.name }}</span>
         <mat-icon>expand_more</mat-icon>
       </button>
-
       <mat-menu #userMenu="matMenu" class="user-dropdown">
         <div class="menu-user-info">
           <div class="menu-avatar">{{ getUserInitials() }}</div>
@@ -77,13 +73,12 @@
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>
-          <span>Logout Karo</span>
+          <span>Logout</span>
         </button>
       </mat-menu>
-
     </mat-toolbar>
 
-    <!-- Router Content -->
+    <!-- Router -->
     <div class="page-content">
       <router-outlet></router-outlet>
     </div>

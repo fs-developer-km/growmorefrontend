@@ -70,6 +70,12 @@ const routes: Routes = [
   loadComponent: () => import('./billing/bill-detail/bill-detail')
     .then(m => m.BillDetail)
 },
+
+{
+  path: 'reports',
+  loadComponent: () => import('./reports/reports/reports')
+    .then(m => m.Reports)
+},
       {
         path: '',
         redirectTo: 'dashboard',

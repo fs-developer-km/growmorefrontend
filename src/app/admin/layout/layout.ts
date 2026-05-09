@@ -38,14 +38,15 @@ export class Layout implements OnInit, AfterViewInit {
   currentUser: any;
   currentPageTitle = 'Dashboard';
 
-  menuItems = [
-    { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
-    { icon: 'assignment', label: 'Leads', route: '/admin/leads' },
-    { icon: 'engineering', label: 'Engineers', route: '/admin/engineers' },
-    { icon: 'people', label: 'Customers', route: '/admin/customers' },
-    { icon: 'inventory_2', label: 'Parts', route: '/admin/parts' },
-    { icon: 'receipt_long', label: 'Bills', route: '/admin/bills' },
-  ];
+menuItems = [
+  { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
+  { icon: 'assignment', label: 'Leads', route: '/admin/leads' },
+  { icon: 'engineering', label: 'Engineers', route: '/admin/engineers' },
+  { icon: 'people', label: 'Customers', route: '/admin/customers' },
+  { icon: 'inventory_2', label: 'Parts', route: '/admin/parts' },
+  { icon: 'receipt_long', label: 'Bills', route: '/admin/bills' },
+  { icon: 'bar_chart', label: 'Reports', route: '/admin/reports' },
+];
 
   constructor(
     private authService: AuthService,

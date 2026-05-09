@@ -1,0 +1,323 @@
+<div class="reports-page">
+
+  <!-- Header -->
+  <div class="page-top">
+    <div class="page-title">
+      <h1>Reports & Analytics 📊</h1>
+      <p>Business ka poora data ek jagah</p>
+    </div>
+
+    <!-- Period Filter -->
+    <div class="period-filter">
+      <button
+        *ngFor="let p of periods"
+        class="period-btn"
+        [class.active]="selectedPeriod === p.value"
+        (click)="selectedPeriod = p.value; onPeriodChange()">
+        {{ p.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Overview Loader -->
+  <div class="loader-center" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+    <p>Data load ho raha hai...</p>
+  </div>
+
+  <div *ngIf="!loading && overview">
+
+    <!-- Overview Stats -->
+    <div class="overview-grid">
+      <div class="ov-card" style="--g1:#6366F1;--g2:#8B5CF6;">
+        <div class="ov-icon">📋</div>
+        <div class="ov-body">
+          <span class="ov-num">{{ overview.totalLeads }}</span>
+          <span class="ov-label">Total Leads</span>
+        </div>
+        <div class="ov-bg">📋</div>
+      </div>
+
+      <div class="ov-card" style="--g1:#10B981;--g2:#059669;">
+        <div class="ov-icon">✅</div>
+        <div class="ov-body">
+          <span class="ov-num">{{ overview.completedLeads }}</span>
+          <span class="ov-label">Completed</span>
+        </div>
+        <div class="ov-bg">✅</div>
+      </div>
+
+      <div class="ov-card" style="--g1:#F59E0B;--g2:#D97706;">
+        <div class="ov-icon">⏳</div>
+        <div class="ov-body">
+          <span class="ov-num">{{ overview.pendingLeads }}</span>
+          <span class="ov-label">Pending</span>
+        </div>
+        <div class="ov-bg">⏳</div>
+      </div>
+
+      <div class="ov-card" style="--g1:#EC4899;--g2:#DB2777;">
+        <div class="ov-icon">💰</div>
+        <div class="ov-body">
+          <span class="ov-num">₹{{ overview.totalRevenue }}</span>
+          <span class="ov-label">Total Revenue</span>
+        </div>
+        <div class="ov-bg">💰</div>
+      </div>
+
+      <div class="ov-card" style="--g1:#06B6D4;--g2:#0891B2;">
+        <div class="ov-icon">✔️</div>
+        <div class="ov-body">
+          <span class="ov-num">₹{{ overview.paidRevenue }}</span>
+          <span class="ov-label">Paid Revenue</span>
+        </div>
+        <div class="ov-bg">✔️</div>
+      </div>
+
+      <div class="ov-card" style="--g1:#EF4444;--g2:#DC2626;">
+        <div class="ov-icon">⏰</div>
+        <div class="ov-body">
+          <span class="ov-num">₹{{ overview.pendingRevenue }}</span>
+          <span class="ov-label">Pending Revenue</span>
+        </div>
+        <div class="ov-bg">⏰</div>
+      </div>
+    </div>
+
+    <!-- Completion Rate Banner -->
+    <div class="completion-banner">
+      <div class="cb-left">
+        <span class="cb-icon">🎯</span>
+        <div>
+          <span class="cb-title">Completion Rate</span>
+          <span class="cb-sub">{{ overview.completedLeads }} of {{ overview.totalLeads }} leads complete hue</span>
+        </div>
+      </div>
+      <div class="cb-rate">
+        <div class="cb-bar">
+          <div class="cb-fill" [style.width]="overview.completionRate + '%'"></div>
+        </div>
+        <span class="cb-percent">{{ overview.completionRate }}%</span>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+
+      <!-- Revenue Chart -->
+      <div class="chart-card big">
+        <div class="chart-header">
+          <div class="ch-title">
+            <span class="ch-icon">📈</span>
+            <span>Revenue Chart</span>
+          </div>
+          <div class="ch-legend">
+            <span class="legend-dot purple"></span> Total
+            <span class="legend-dot green"></span> Paid
+          </div>
+        </div>
+        <div class="chart-wrap" *ngIf="!chartsLoading">
+          <canvas #revenueChart width="600" height="220"></canvas>
+        </div>
+        <div class="chart-empty" *ngIf="!chartsLoading && revenueData.length === 0">
+          <span>📊</span>
+          <p>Is period mein koi data nahi</p>
+        </div>
+        <div class="chart-loader" *ngIf="chartsLoading">
+          <mat-spinner diameter="32"></mat-spinner>
+        </div>
+      </div>
+
+      <!-- Leads Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="ch-title">
+            <span class="ch-icon">📋</span>
+            <span>Leads Trend</span>
+          </div>
+          <div class="ch-legend">
+            <span class="legend-dot purple"></span> Total
+            <span class="legend-dot green"></span> Done
+          </div>
+        </div>
+        <div class="chart-wrap" *ngIf="!chartsLoading">
+          <canvas #leadsChart width="400" height="220"></canvas>
+        </div>
+        <div class="chart-loader" *ngIf="chartsLoading">
+          <mat-spinner diameter="32"></mat-spinner>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pie Charts Row -->
+    <div class="charts-row" *ngIf="serviceBreakdown">
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="ch-title">
+            <span class="ch-icon">🔧</span>
+            <span>Appliance Breakdown</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas #applianceChart width="340" height="260"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="ch-title">
+            <span class="ch-icon">💳</span>
+            <span>Payment Status</span>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas #paymentChart width="340" height="200"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Engineer Performance -->
+    <div class="section-card" *ngIf="engineerPerformance.length > 0">
+      <div class="sc-header">
+        <div class="sc-title">
+          <span>👷</span>
+          <span>Engineer Performance</span>
+        </div>
+      </div>
+
+      <div class="eng-perf-list">
+        <div class="ep-item" *ngFor="let eng of engineerPerformance; let i = index">
+
+          <div class="ep-rank">
+            <span *ngIf="i === 0">🥇</span>
+            <span *ngIf="i === 1">🥈</span>
+            <span *ngIf="i === 2">🥉</span>
+            <span *ngIf="i > 2">#{{ i + 1 }}</span>
+          </div>
+
+          <div class="ep-avatar">{{ getInitials(eng.name) }}</div>
+
+          <div class="ep-info">
+            <h3>{{ eng.name }}</h3>
+            <p>{{ eng.phone }}</p>
+          </div>
+
+          <div class="ep-stats">
+            <div class="eps-item">
+              <span class="eps-num">{{ eng.totalLeads }}</span>
+              <span class="eps-label">Total</span>
+            </div>
+            <div class="eps-item green">
+              <span class="eps-num">{{ eng.completed }}</span>
+              <span class="eps-label">Done</span>
+            </div>
+            <div class="eps-item orange">
+              <span class="eps-num">{{ eng.inProgress }}</span>
+              <span class="eps-label">Active</span>
+            </div>
+          </div>
+
+          <div class="ep-rate">
+            <div class="rate-circle"
+              [style.border-color]="getPerformanceColor(eng.completionRate)">
+              <span [style.color]="getPerformanceColor(eng.completionRate)">
+                {{ eng.completionRate }}%
+              </span>
+            </div>
+            <span class="rate-label">Rate</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Type Breakdown -->
+    <div class="section-card" *ngIf="serviceBreakdown?.byService?.length > 0">
+      <div class="sc-header">
+        <div class="sc-title">
+          <span>🛠️</span>
+          <span>Service Type Breakdown</span>
+        </div>
+      </div>
+
+      <div class="service-list">
+        <div class="sv-item" *ngFor="let sv of serviceBreakdown.byService">
+          <div class="sv-left">
+            <span class="sv-name">{{ sv._id }}</span>
+          </div>
+          <div class="sv-bar-wrap">
+            <div class="sv-bar">
+              <div class="sv-fill"
+                [style.width]="(sv.count / serviceBreakdown.byService[0].count * 100) + '%'">
+              </div>
+            </div>
+          </div>
+          <span class="sv-count">{{ sv.count }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="export-card">
+      <div class="sc-header">
+        <div class="sc-title">
+          <span>📥</span>
+          <span>Export Reports (CSV)</span>
+        </div>
+      </div>
+
+      <div class="export-grid">
+
+        <div class="export-item">
+          <div class="export-icon">📋</div>
+          <div class="export-info">
+            <h3>Leads Report</h3>
+            <p>Saari leads ka data — customer, status, engineer</p>
+          </div>
+          <button class="export-btn leads-export"
+            (click)="exportData('leads')"
+            [disabled]="exportingLeads">
+            <mat-spinner diameter="16" *ngIf="exportingLeads"></mat-spinner>
+            <mat-icon *ngIf="!exportingLeads">download</mat-icon>
+            {{ exportingLeads ? 'Downloading...' : 'Download CSV' }}
+          </button>
+        </div>
+
+        <div class="export-item">
+          <div class="export-icon">🧾</div>
+          <div class="export-info">
+            <h3>Bills Report</h3>
+            <p>Saare bills — amount, payment status, method</p>
+          </div>
+          <button class="export-btn bills-export"
+            (click)="exportData('bills')"
+            [disabled]="exportingBills">
+            <mat-spinner diameter="16" *ngIf="exportingBills"></mat-spinner>
+            <mat-icon *ngIf="!exportingBills">download</mat-icon>
+            {{ exportingBills ? 'Downloading...' : 'Download CSV' }}
+          </button>
+        </div>
+
+        <div class="export-item">
+          <div class="export-icon">👷</div>
+          <div class="export-info">
+            <h3>Engineer Report</h3>
+            <p>Engineer-wise performance — leads, completion rate</p>
+          </div>
+          <button class="export-btn eng-export"
+            (click)="exportData('engineers')"
+            [disabled]="exportingEngineers">
+            <mat-spinner diameter="16" *ngIf="exportingEngineers"></mat-spinner>
+            <mat-icon *ngIf="!exportingEngineers">download</mat-icon>
+            {{ exportingEngineers ? 'Downloading...' : 'Download CSV' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
