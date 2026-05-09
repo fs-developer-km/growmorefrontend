@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -31,21 +31,21 @@ import { AuthService } from '../../services/auth';
   templateUrl: './layout.html',
   styleUrls: ['./layout.scss']
 })
-export class Layout implements OnInit {
+export class Layout implements OnInit, AfterViewInit {
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
   isMobile = false;
   currentUser: any;
   currentPageTitle = 'Dashboard';
 
-menuItems = [
-  { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
-  { icon: 'assignment', label: 'Leads', route: '/admin/leads' },
-  { icon: 'engineering', label: 'Engineers', route: '/admin/engineers' },
-  { icon: 'people', label: 'Customers', route: '/admin/customers' },
-  { icon: 'inventory_2', label: 'Parts', route: '/admin/parts' },
-  { icon: 'receipt_long', label: 'Bills', route: '/admin/bills' },
-];
+  menuItems = [
+    { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
+    { icon: 'assignment', label: 'Leads', route: '/admin/leads' },
+    { icon: 'engineering', label: 'Engineers', route: '/admin/engineers' },
+    { icon: 'people', label: 'Customers', route: '/admin/customers' },
+    { icon: 'inventory_2', label: 'Parts', route: '/admin/parts' },
+    { icon: 'receipt_long', label: 'Bills', route: '/admin/bills' },
+  ];
 
   constructor(
     private authService: AuthService,
@@ -56,20 +56,7 @@ menuItems = [
   }
 
   ngOnInit() {
-    // Mobile detection
-    this.breakpointObserver.observe([Breakpoints.Handset, Breakpoints.Tablet])
-      .subscribe(result => {
-        this.isMobile = result.matches;
-        if (this.sidenav) {
-          if (this.isMobile) {
-            this.sidenav.close();
-          } else {
-            this.sidenav.open();
-          }
-        }
-      });
-
-    // Page title update
+    // Sirf page title yahan — sidenav touch mat karo ngOnInit mein
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe(() => {
@@ -77,6 +64,20 @@ menuItems = [
       const item = this.menuItems.find(m => url.includes(m.route));
       this.currentPageTitle = item ? item.label : 'GrowMore';
     });
+  }
+
+  ngAfterViewInit() {
+    // ViewChild sidenav ab ready hai — yahan breakpoint observer chalao
+    this.breakpointObserver
+      .observe([Breakpoints.Handset, Breakpoints.Tablet])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+        if (this.isMobile) {
+          this.sidenav.close();
+        } else {
+          this.sidenav.open(); // Desktop pe pehli baar bhi open hoga
+        }
+      });
   }
 
   toggleSidenav() {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -36,7 +36,9 @@ export class CustomerList implements OnInit {
 
   constructor(
     private customerService: CustomerService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
+    
   ) {}
 
   ngOnInit() {
@@ -58,6 +60,7 @@ export class CustomerList implements OnInit {
         this.customers = res.customers || [];
         this.totalCustomers = res.total || 0;
         this.loading = false;
+         this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Customers load nahi hue');

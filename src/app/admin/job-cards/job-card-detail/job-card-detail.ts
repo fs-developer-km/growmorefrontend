@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,9 @@ export class JobCardDetail implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private jobCardService: JobCardService,
-    private toast: ToastService
+    private toast: ToastService,
+     private cdr: ChangeDetectorRef
+    
   ) {}
 
   ngOnInit() {
@@ -45,6 +47,7 @@ export class JobCardDetail implements OnInit {
       next: (res: any) => {
         this.jobCard = res.jobCard;
         this.loading = false;
+          this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Job card load nahi hua');

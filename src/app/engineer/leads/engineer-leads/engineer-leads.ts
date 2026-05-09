@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,7 +35,8 @@ export class EngineerLeads implements OnInit {
 
   constructor(
     private leadService: LeadService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() { this.loadLeads(); }
@@ -47,6 +48,7 @@ export class EngineerLeads implements OnInit {
         this.leads = res.leads || [];
         this.filteredLeads = this.leads;
         this.loading = false;
+           this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Leads load nahi hue');

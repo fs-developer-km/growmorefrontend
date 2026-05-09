@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LeadService } from '../../services/lead';
 import { BillService } from '../../services/bill';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -35,13 +36,16 @@ export class Dashboard implements OnInit {
 
   recentLeads: any[] = [];
 
+
   constructor(
     private leadService: LeadService,
-    private billService: BillService
+    private billService: BillService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadDashboard();
+      console.log('Component Loaded');
   }
 
   loadDashboard() {
@@ -49,6 +53,10 @@ export class Dashboard implements OnInit {
 
     this.leadService.getAllLeads({}).subscribe({
       next: (res: any) => {
+
+          console.log('USER DATA:', res);
+
+
         const leads = res.leads || [];
         this.stats.totalLeads = res.total || 0;
         this.stats.newLeads = leads.filter((l: any) => l.status === 'New').length;
@@ -56,6 +64,7 @@ export class Dashboard implements OnInit {
         this.stats.completedLeads = leads.filter((l: any) => l.status === 'Completed').length;
         this.recentLeads = leads.slice(0, 5);
         this.loading = false;
+           this.cdr.detectChanges();
       },
       error: () => { this.loading = false; }
     });

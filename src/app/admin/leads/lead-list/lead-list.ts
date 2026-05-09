@@ -13,6 +13,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { LeadService } from '../../../services/lead';
 import { ToastService } from '../../../services/toast';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-lead-list',
@@ -49,7 +50,8 @@ export class LeadList implements OnInit {
 
   constructor(
     private leadService: LeadService,
-    private toast: ToastService
+    private toast: ToastService,
+      private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -64,6 +66,7 @@ export class LeadList implements OnInit {
         this.filteredLeads = this.leads;
         this.calculateCounts();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Leads load nahi hui');

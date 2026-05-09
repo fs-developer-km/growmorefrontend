@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -28,7 +28,8 @@ export class EngineerList implements OnInit {
 
   constructor(
     private engineerService: EngineerService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -41,6 +42,7 @@ export class EngineerList implements OnInit {
       next: (res: any) => {
         this.engineers = res.engineers || [];
         this.loading = false;
+         this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Engineers load nahi hue');

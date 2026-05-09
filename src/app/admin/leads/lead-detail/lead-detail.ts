@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -51,7 +51,8 @@ export class LeadDetail implements OnInit {
     private router: Router,
     private leadService: LeadService,
     private engineerService: EngineerService,
-    private toast: ToastService
+    private toast: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -70,6 +71,7 @@ export class LeadDetail implements OnInit {
         this.selectedStatus = this.lead.status;
         this.selectedEngineerId = this.lead.assignedTo?._id || '';
         this.loading = false;
+         this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Lead load nahi hui');

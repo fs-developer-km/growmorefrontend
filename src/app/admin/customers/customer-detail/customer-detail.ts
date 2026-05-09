@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,7 +32,8 @@ export class CustomerDetail implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private customerService: CustomerService,
-    private toast: ToastService
+    private toast: ToastService,
+     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -47,6 +48,7 @@ export class CustomerDetail implements OnInit {
         this.customer = res.customer;
         this.leads = res.leads || [];
         this.loading = false;
+             this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Customer load nahi hua');

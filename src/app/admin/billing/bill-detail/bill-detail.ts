@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -42,7 +42,8 @@ export class BillDetail implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private billService: BillService,
-    private toast: ToastService
+    private toast: ToastService,
+     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -58,6 +59,7 @@ export class BillDetail implements OnInit {
         this.selectedPaymentStatus = this.bill.paymentStatus;
         this.selectedPaymentMethod = this.bill.paymentMethod;
         this.loading = false;
+               this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Bill load nahi hua');

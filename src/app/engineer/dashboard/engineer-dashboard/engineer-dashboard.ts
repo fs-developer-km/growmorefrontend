@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +39,8 @@ export class EngineerDashboard implements OnInit {
 
   constructor(
     private leadService: LeadService,
-    private authService: AuthService
+    private authService: AuthService,
+      private cdr: ChangeDetectorRef
   ) {
     this.currentUser = this.authService.getCurrentUser();
     this.setGreeting();
@@ -64,6 +65,7 @@ export class EngineerDashboard implements OnInit {
         this.calculateStats();
         this.filterTodayLeads();
         this.loading = false;
+          this.cdr.detectChanges();
       },
       error: () => { this.loading = false; }
     });

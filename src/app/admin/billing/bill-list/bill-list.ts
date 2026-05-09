@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,7 +39,8 @@ export class BillList implements OnInit {
 
   constructor(
     private billService: BillService,
-    private toast: ToastService
+    private toast: ToastService,
+        private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() { this.loadBills(); }
@@ -52,6 +53,7 @@ export class BillList implements OnInit {
         this.filteredBills = this.bills;
         this.calculateRevenue();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Bills load nahi hue');

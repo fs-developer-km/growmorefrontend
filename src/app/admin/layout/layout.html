@@ -1,11 +1,7 @@
 <mat-sidenav-container class="sidenav-container">
 
   <!-- Sidebar -->
-  <mat-sidenav
-    #sidenav
-    [mode]="isMobile ? 'over' : 'side'"
-    [opened]="!isMobile"
-    class="sidenav">
+  <mat-sidenav #sidenav [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="sidenav">
 
     <!-- Logo Area -->
     <div class="sidebar-header">
@@ -31,13 +27,9 @@
 
     <!-- Nav Items -->
     <mat-nav-list class="nav-list">
-      
-       <a mat-list-item
-        *ngFor="let item of menuItems"
-        [routerLink]="item.route"
-        routerLinkActive="active-link"
-        class="nav-item"
-        (click)="closeSidenavOnMobile()">
+
+      <a mat-list-item *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active-link"
+        class="nav-item" (click)="closeSidenavOnMobile()">
         <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
         <span matListItemTitle>{{ item.label }}</span>
       </a>
