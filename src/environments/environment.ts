@@ -1,4 +1,5 @@
 export const environment = {
-    production: false,
-    apiUrl: 'http://localhost:5000/api'
+    production: true,
+    apiUrl: 'https://growmoregbackend-1.onrender.com/api'
+    // apiUrl: 'http://localhost:5000/api'
 };

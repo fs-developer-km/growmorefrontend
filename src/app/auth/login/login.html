@@ -1,95 +1,105 @@
 <div class="login-wrapper">
 
+  <!-- LEFT: Content Section (wider) -->
   <div class="login-left">
-    <div class="brand">
-      <div class="brand-icon">⚙️</div>
-      <h1>GrowMore</h1>
-      <p>Appliances Service Management</p>
-    </div>
-    <div class="features">
-      <div class="feature-item">
-        <span class="f-icon">📋</span>
-        <span>Lead Management</span>
+    <div class="left-inner">
+
+      <div class="brand-badge">
+        <span class="badge-dot"></span>
+        India's Trusted Home Appliance Service
       </div>
-      <div class="feature-item">
-        <span class="f-icon">👷</span>
-        <span>Engineer Assignment</span>
+
+      <h1>Welcome<br><span class="accent">Back,</span> Expert!</h1>
+      <p class="hero-sub">Login to your dashboard and manage your service tickets, engineers &amp; billing — all in one place.</p>
+
+      <div class="feature-list">
+        <div class="fi"><span class="fi-check">✓</span> Manage All Service Tickets &amp; Enquiries</div>
+        <div class="fi"><span class="fi-check">✓</span> Track Engineers &amp; Assignments</div>
+        <div class="fi"><span class="fi-check">✓</span> Instant Bill Generation &amp; Sharing</div>
+        <div class="fi"><span class="fi-check">✓</span> Update Business &amp; Customer Info</div>
       </div>
-      <div class="feature-item">
-        <span class="f-icon">🧾</span>
-        <span>Instant Bill Generation</span>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <span class="stat-icon">🏆</span>
+          <div class="stat-val">500+</div>
+          <div class="stat-lbl">Happy Customers</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-icon">🔧</span>
+          <div class="stat-val">1,200+</div>
+          <div class="stat-lbl">Jobs Completed</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-icon">❄️</span>
+          <div class="stat-val">15+</div>
+          <div class="stat-lbl">Service Types</div>
+        </div>
       </div>
-      <div class="feature-item">
-        <span class="f-icon">📲</span>
-        <span>WhatsApp Bill Share</span>
+
+      <div class="float-card fc-1">
+        <span>🌐</span>
+        <div>
+          <div class="fc-title">Secure Login</div>
+          <div class="fc-sub">Safe &amp; encrypted</div>
+        </div>
       </div>
+      <div class="float-card fc-2">
+        <span>📋</span>
+        <div>
+          <div class="fc-title">Dashboard</div>
+          <div class="fc-sub">Manage tickets</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
+  <!-- RIGHT: Form Section (narrower) -->
   <div class="login-right">
-    <mat-card class="login-card">
+    <div class="login-card">
 
-      <mat-card-header>
-        <mat-card-title>Welcome Back 👋</mat-card-title>
-        <mat-card-subtitle>Apne account mein login karo</mat-card-subtitle>
-      </mat-card-header>
+      <div class="card-logo">⚙️</div>
+      <h2 class="card-title">Admin Login</h2>
+      <p class="card-sub">Don't have account? <a href="#" class="link">Grow More</a></p>
 
-      <mat-card-content>
-        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" autocomplete="off">
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Phone Number</mat-label>
-            <input
-              matInput
-              formControlName="phone"
-              placeholder="10 digit number"
-              maxlength="10"
-              type="tel">
-            <mat-icon matPrefix>phone</mat-icon>
-            <mat-error *ngIf="loginForm.get('phone')?.hasError('required')">
-              Phone number zaroori hai
-            </mat-error>
-            <mat-error *ngIf="loginForm.get('phone')?.hasError('pattern')">
-              Sahi 10 digit number daalo
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Password</mat-label>
-            <input
-              matInput
-              formControlName="password"
-              [type]="showPassword ? 'text' : 'password'"
-              placeholder="Password daalo">
-            <mat-icon matPrefix>lock</mat-icon>
-            <button mat-icon-button matSuffix type="button"
-              (click)="showPassword = !showPassword">
-              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-              Password zaroori hai
-            </mat-error>
-          </mat-form-field>
-
-          <div class="error-msg" *ngIf="errorMsg">
-            <mat-icon>error_outline</mat-icon>
-            <span>{{ errorMsg }}</span>
+        <div class="field-group" [class.has-error]="loginForm.get('phone')?.invalid && loginForm.get('phone')?.touched">
+          <label class="field-label">PHONE NUMBER</label>
+          <div class="field-box">
+            <span class="field-pre">🇮🇳</span>
+            <input class="field-inp" formControlName="phone" placeholder="10 digit number" maxlength="10" type="tel" inputmode="numeric" />
+            <span class="valid-icon" *ngIf="loginForm.get('phone')?.valid && loginForm.get('phone')?.touched">✓</span>
           </div>
+          <div class="err-text" *ngIf="loginForm.get('phone')?.hasError('required') && loginForm.get('phone')?.touched">Phone number zaroori hai</div>
+          <div class="err-text" *ngIf="loginForm.get('phone')?.hasError('pattern') && loginForm.get('phone')?.touched">Sahi 10 digit number daalo</div>
+        </div>
 
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            class="login-btn"
-            [disabled]="loginForm.invalid || loading">
-            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
-            <span *ngIf="!loading">Login Karo</span>
-          </button>
+        <div class="field-group" [class.has-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <label class="field-label">PASSWORD</label>
+          <div class="field-box">
+            <span class="field-pre">🔒</span>
+            <input class="field-inp" formControlName="password" [type]="showPassword ? 'text' : 'password'" placeholder="Enter password" />
+            <button type="button" class="eye-btn" (click)="showPassword = !showPassword">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          <div class="err-text" *ngIf="loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched">Password zaroori hai</div>
+        </div>
 
-        </form>
-      </mat-card-content>
+        <div class="err-banner" *ngIf="errorMsg">⚠️ {{ errorMsg }}</div>
 
-    </mat-card>
+        <button type="submit" class="login-btn" [class.is-loading]="loading" [disabled]="loginForm.invalid || loading">
+          <span class="dot-loader" *ngIf="loading"><span></span><span></span><span></span></span>
+          <span *ngIf="!loading">→&nbsp; Login</span>
+        </button>
+
+        <a href="#" class="forgot-link">Forgot Password?</a>
+        <p class="bottom-txt">Don't have account? <a href="#" class="link">Grow More</a></p>
+
+      </form>
+    </div>
   </div>
 
 </div>
