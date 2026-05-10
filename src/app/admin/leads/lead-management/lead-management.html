@@ -1,0 +1,669 @@
+<div class="lm-page" (click)="showSearchDropdown = false">
+
+  <!-- ===== TOP HEADER ===== -->
+  <div class="lm-header">
+    <div class="lm-title">
+      <h1>Lead Management</h1>
+      <p>Saari leads ek jagah — filter, assign, track, export</p>
+    </div>
+    <div class="lm-header-actions">
+      <!-- View Toggle -->
+      <div class="view-toggle">
+        <button class="vt-btn" [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
+          <mat-icon>table_rows</mat-icon>
+          <span class="hide-mobile">Table</span>
+        </button>
+        <button class="vt-btn" [class.active]="viewMode === 'kanban'" (click)="viewMode = 'kanban'">
+          <mat-icon>view_kanban</mat-icon>
+          <span class="hide-mobile">Kanban</span>
+        </button>
+      </div>
+
+      <!-- Export Button -->
+      <button class="lm-export-btn" [matMenuTriggerFor]="exportMenu" [disabled]="exporting">
+        <mat-spinner diameter="16" *ngIf="exporting"></mat-spinner>
+        <mat-icon *ngIf="!exporting">download</mat-icon>
+        <span class="hide-mobile">Export</span>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportToExcel('all')">
+          <mat-icon>table_chart</mat-icon> Saari Leads Export
+        </button>
+        <button mat-menu-item (click)="exportToExcel('filtered')">
+          <mat-icon>filter_alt</mat-icon> Filtered Leads Export
+        </button>
+        <button mat-menu-item (click)="exportToExcel('selected')" [disabled]="selectedLeads.size === 0">
+          <mat-icon>checklist</mat-icon> Selected Export ({{ selectedLeads.size }})
+        </button>
+      </mat-menu>
+
+      <!-- Add Lead -->
+      <button class="lm-add-btn" routerLink="/admin/leads/add">
+        <mat-icon>add</mat-icon>
+        <span>Naya Lead</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar" *ngIf="!statsLoading && stats">
+    <div class="stat-chip total" (click)="clearFilters()" matTooltip="Total Leads"> 
+      <span class="sc-num">{{ stats.totalLeads }}</span>
+      <span class="sc-label">Total</span>
+    </div>
+    <div class="stat-chip today" (click)="quickFilter('')" matTooltip="Today Leads">
+      <span class="sc-num">{{ stats.todayLeads }}</span>
+      <span class="sc-label">Aaj</span>
+    </div>
+    <div class="stat-chip new" (click)="quickFilter('New')" matTooltip="New">
+      <span class="sc-num">{{ stats.newLeads }}</span>
+      <span class="sc-label">New</span>
+    </div>
+    <div class="stat-chip assigned" (click)="quickFilter('Assigned')">
+      <span class="sc-num">{{ stats.assignedLeads }}</span>
+      <span class="sc-label">Assigned</span>
+    </div>
+    <div class="stat-chip inprogress" (click)="quickFilter('In Progress')">
+      <span class="sc-num">{{ stats.inProgressLeads }}</span>
+      <span class="sc-label">In Progress</span>
+    </div>
+    <div class="stat-chip completed" (click)="quickFilter('Completed')">
+      <span class="sc-num">{{ stats.completedLeads }}</span>
+      <span class="sc-label">Completed</span>
+    </div>
+    <div class="stat-chip alert" *ngIf="stats.unattendedLeads > 0">
+      <span class="sc-num">{{ stats.unattendedLeads }}</span>
+      <span class="sc-label">⚠️ Unattended</span>
+    </div>
+    <div class="stat-chip high-priority" *ngIf="stats.highPriority > 0" (click)="quickFilter('High')">
+      <span class="sc-num">{{ stats.highPriority }}</span>
+      <span class="sc-label">🔴 High Priority</span>
+    </div>
+  </div>
+
+  <!-- ===== SEARCH + FILTER BAR ===== -->
+  <div class="search-filter-bar">
+
+    <!-- Smart Search -->
+    <div class="smart-search-wrap" (click)="$event.stopPropagation()">
+      <div class="smart-search-input">
+        <mat-icon class="ss-icon">search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchInput($event)"
+          (keyup.enter)="applySearch()"
+          placeholder="Name, Phone, Address search karo..."
+          class="ss-input">
+        <mat-spinner diameter="16" *ngIf="searching" class="ss-loader"></mat-spinner>
+        <button class="ss-clear" *ngIf="searchQuery" (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Search Dropdown -->
+      <div class="search-dropdown" *ngIf="showSearchDropdown">
+
+        <!-- Customer Detected -->
+        <div class="customer-detected" *ngIf="detectedCustomer">
+          <div class="cd-header">
+            <mat-icon>person_check</mat-icon>
+            <span>Purana Customer Mila! 🎉</span>
+          </div>
+          <div class="cd-body">
+            <div class="cd-avatar">{{ detectedCustomer.name?.charAt(0) }}</div>
+            <div class="cd-info">
+              <strong>{{ detectedCustomer.name }}</strong>
+              <span>📞 {{ detectedCustomer.phone }}</span>
+              <span>📍 {{ detectedCustomer.address }}</span>
+            </div>
+            <div class="cd-stats">
+              <div class="cds-item">
+                <span>{{ detectedCustomer.leadCount }}</span>
+                <small>Visits</small>
+              </div>
+              <div class="cds-item">
+                <span>{{ detectedCustomer.completedCount }}</span>
+                <small>Done</small>
+              </div>
+              <div class="cds-item green">
+                <span>₹{{ detectedCustomer.totalPaid }}</span>
+                <small>Paid</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Results -->
+        <div class="sd-section-label" *ngIf="searchResults.length > 0">Recent Leads</div>
+        <div
+          class="sd-result"
+          *ngFor="let result of searchResults"
+          (click)="selectSearchResult(result)">
+          <span class="sdr-emoji">{{ getApplianceEmoji(result.applianceType) }}</span>
+          <div class="sdr-info">
+            <strong>{{ result.customer?.name }}</strong>
+            <span>{{ result.applianceType }} — {{ result.serviceType }}</span>
+          </div>
+          <span class="sdr-badge {{ getStatusClass(result.status) }}">{{ result.status }}</span>
+        </div>
+
+        <div class="sd-empty" *ngIf="!detectedCustomer && searchResults.length === 0">
+          <mat-icon>search_off</mat-icon>
+          <span>Koi result nahi mila</span>
+          <button (click)="applySearch()">Search mein dekho</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Filter Toggle -->
+    <button class="filter-toggle-btn" (click)="showFilters = !showFilters">
+      <mat-icon>tune</mat-icon>
+      <span class="hide-mobile">Filters</span>
+      <span class="filter-count" *ngIf="appliedFilterCount > 0">{{ appliedFilterCount }}</span>
+    </button>
+
+  </div>
+
+  <!-- ===== FILTER PANEL ===== -->
+  <div class="filter-panel" [class.open]="showFilters">
+    <div class="fp-grid">
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="filters.status" (ngModelChange)="applyFilters()">
+          <mat-option value="">Sab</mat-option>
+          <mat-option *ngFor="let s of statusOptions" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>Engineer</mat-label>
+        <mat-select [(ngModel)]="filters.assignedTo" (ngModelChange)="applyFilters()">
+          <mat-option value="">Sab Engineers</mat-option>
+          <mat-option value="unassigned">Unassigned</mat-option>
+          <mat-option *ngFor="let eng of engineers" [value]="eng._id">{{ eng.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>Appliance</mat-label>
+        <mat-select [(ngModel)]="filters.applianceType" (ngModelChange)="applyFilters()">
+          <mat-option value="">Sab</mat-option>
+          <mat-option *ngFor="let a of applianceOptions" [value]="a">{{ a }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>Service Type</mat-label>
+        <mat-select [(ngModel)]="filters.serviceType" (ngModelChange)="applyFilters()">
+          <mat-option value="">Sab</mat-option>
+          <mat-option *ngFor="let s of serviceOptions" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>Priority</mat-label>
+        <mat-select [(ngModel)]="filters.priority" (ngModelChange)="applyFilters()">
+          <mat-option value="">Sab</mat-option>
+          <mat-option *ngFor="let p of priorityOptions" [value]="p">{{ p }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>Source</mat-label>
+        <mat-select [(ngModel)]="filters.source" (ngModelChange)="applyFilters()">
+          <mat-option value="">Sab</mat-option>
+          <mat-option *ngFor="let s of sourceOptions" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>Start Date</mat-label>
+        <input matInput type="date" [(ngModel)]="filters.startDate" (ngModelChange)="applyFilters()">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="fp-field">
+        <mat-label>End Date</mat-label>
+        <input matInput type="date" [(ngModel)]="filters.endDate" (ngModelChange)="applyFilters()">
+      </mat-form-field>
+
+    </div>
+
+    <div class="fp-actions">
+      <button class="fp-clear-btn" (click)="clearFilters()">
+        <mat-icon>clear_all</mat-icon> Sab Clear Karo
+      </button>
+      <span class="fp-count" *ngIf="appliedFilterCount > 0">
+        {{ appliedFilterCount }} filter{{ appliedFilterCount > 1 ? 's' : '' }} applied
+      </span>
+    </div>
+  </div>
+
+  <!-- ===== BULK ACTION BAR ===== -->
+  <div class="bulk-bar" [class.visible]="showBulkBar">
+    <div class="bb-left">
+      <mat-icon>checklist</mat-icon>
+      <span><strong>{{ selectedLeads.size }}</strong> selected</span>
+    </div>
+    <div class="bb-actions">
+
+      <div class="bb-action-group">
+        <select class="bb-select" [(ngModel)]="bulkAssignEngineerId">
+          <option value="">Engineer Select</option>
+          <option *ngFor="let eng of engineers" [value]="eng._id">{{ eng.name }}</option>
+        </select>
+        <button class="bb-btn assign" (click)="doBulkAssign()">
+          <mat-icon>assignment_ind</mat-icon> Assign Karo
+        </button>
+      </div>
+
+      <div class="bb-action-group">
+        <select class="bb-select" [(ngModel)]="bulkStatusValue">
+          <option value="">Status Select</option>
+          <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+        </select>
+        <button class="bb-btn status" (click)="doBulkStatus()">
+          <mat-icon>update</mat-icon> Status Change
+        </button>
+      </div>
+
+      <button class="bb-btn export" (click)="exportToExcel('selected')">
+        <mat-icon>download</mat-icon> Export
+      </button>
+
+      <button class="bb-btn cancel" (click)="clearSelection()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== TABLE VIEW ===== -->
+  <div class="table-container" *ngIf="viewMode === 'table'">
+
+    <!-- Loader -->
+    <div class="table-loader" *ngIf="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Leads load ho rahi hain...</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="table-empty" *ngIf="!loading && leads.length === 0">
+      <div class="te-icon">📋</div>
+      <h3>Koi lead nahi mili</h3>
+      <p>Filter change karo ya naya lead add karo</p>
+      <div class="te-actions">
+        <button class="te-clear" (click)="clearFilters()">Filters Clear Karo</button>
+        <button class="te-add" routerLink="/admin/leads/add">+ Naya Lead</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="leads-table-wrap" *ngIf="!loading && leads.length > 0">
+      <table class="leads-table">
+        <thead>
+          <tr>
+             <th></th>
+            <th class="th-check">
+              <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll()" class="custom-check">
+            </th>
+           
+      <th class="th-pin">
+  <mat-icon>push_pin</mat-icon>
+</th>
+            <th (click)="sortTable('createdAt')" class="sortable">
+              Date
+              <mat-icon class="sort-icon">{{ sortBy === 'createdAt' ? (sortOrder === 'desc' ? 'arrow_downward' : 'arrow_upward') : 'unfold_more' }}</mat-icon>
+            </th>
+            <th>Customer</th>
+            <th class="hide-mobile">Appliance</th>
+            <th class="hide-mobile">Service</th>
+            <th>Status</th>
+            <th class="hide-mobile">Priority</th>
+            <th class="hide-mobile">Engineer</th>
+            <th class="hide-mobile">Source</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let lead of leads"
+            class="lead-row"
+            [class.selected]="isSelected(lead._id)"
+            [class.pinned]="lead.isPinned"
+            [class.status-new]="lead.status === 'New'"
+            [class.status-assigned]="lead.status === 'Assigned'"
+            [class.status-progress]="lead.status === 'In Progress'"
+            [class.status-done]="lead.status === 'Completed'"
+            [class.status-cancelled]="lead.status === 'Cancelled'"
+            (click)="openDetailPanel(lead._id)">
+
+            <!-- Checkbox -->
+            <td class="td-check" (click)="$event.stopPropagation()">
+              <input type="checkbox"
+                [checked]="isSelected(lead._id)"
+                (change)="toggleSelect(lead._id)"
+                class="custom-check">
+            </td>
+
+            <!-- Pin -->
+            <td class="td-pin" (click)="togglePin(lead, $event)">
+              <mat-icon class="pin-icon" [class.pinned]="lead.isPinned">
+                {{ lead.isPinned ? 'push_pin' : 'push_pin' }}
+              </mat-icon>
+            </td>
+
+            <!-- Date -->
+            <td class="td-date">
+              <span class="date-main">{{ lead.createdAt | date:'dd MMM' }}</span>
+              <span class="date-time">{{ lead.createdAt | date:'hh:mm a' }}</span>
+            </td>
+
+            <!-- Customer -->
+            <td class="td-customer">
+              <div class="customer-cell">
+                <div class="cc-avatar">{{ lead.customer?.name?.charAt(0) }}</div>
+                <div class="cc-info">
+                  <span class="cc-name">{{ lead.customer?.name }}</span>
+                  <span class="cc-phone">{{ lead.customer?.phone }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Appliance -->
+            <td class="td-appliance hide-mobile">
+              <span class="appliance-cell">
+                {{ getApplianceEmoji(lead.applianceType) }} {{ lead.applianceType }}
+              </span>
+            </td>
+
+            <!-- Service -->
+            <td class="td-service hide-mobile">
+              <span class="service-tag">{{ lead.serviceType }}</span>
+            </td>
+
+            <!-- Status -->
+            <td class="td-status">
+              <span class="status-badge {{ getStatusClass(lead.status) }}">{{ lead.status }}</span>
+            </td>
+
+            <!-- Priority -->
+            <td class="td-priority hide-mobile">
+              <span class="priority-badge {{ getPriorityClass(lead.priority) }}">
+                {{ lead.priority === 'High' ? '🔴' : lead.priority === 'Low' ? '🟢' : '🟡' }}
+                {{ lead.priority }}
+              </span>
+            </td>
+
+            <!-- Engineer -->
+            <td class="td-engineer hide-mobile">
+              <span class="engineer-cell" *ngIf="lead.assignedTo">
+                <div class="eng-mini-avatar">{{ lead.assignedTo?.name?.charAt(0) }}</div>
+                {{ lead.assignedTo?.name }}
+              </span>
+              <span class="unassigned" *ngIf="!lead.assignedTo">—</span>
+            </td>
+
+            <!-- Source -->
+            <td class="td-source hide-mobile">
+              <span class="source-tag">{{ lead.source || '—' }}</span>
+            </td>
+
+            <!-- Actions -->
+            <td class="td-actions" (click)="$event.stopPropagation()">
+              <div class="row-actions">
+                <a [href]="'tel:' + lead.customer?.phone"
+                  class="ra-btn call" matTooltip="Call Karo">
+                  <mat-icon>phone</mat-icon>
+                </a>
+                <a [href]="'https://wa.me/91' + lead.customer?.phone"
+                  target="_blank"
+                  class="ra-btn wa" matTooltip="WhatsApp">
+                  <mat-icon>message</mat-icon>
+                </a>
+                <button class="ra-btn view" (click)="openDetailPanel(lead._id)" matTooltip="Detail Dekho">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="getTotalPages() > 1">
+        <button class="pg-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button
+          *ngFor="let page of getPages()"
+          class="pg-btn"
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+        <button class="pg-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === getTotalPages()">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+        <span class="pg-info">{{ totalLeads }} total leads</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== KANBAN VIEW ===== -->
+  <div class="kanban-view" *ngIf="viewMode === 'kanban'">
+    <div class="kanban-col" *ngFor="let col of kanbanColumns">
+      <div class="kc-header" [style.border-color]="col.color">
+        <span class="kc-icon">{{ col.icon }}</span>
+        <span class="kc-label">{{ col.label }}</span>
+        <span class="kc-count">{{ getKanbanLeads(col.key).length }}</span>
+      </div>
+      <div class="kc-body">
+        <div
+          class="kanban-card"
+          *ngFor="let lead of getKanbanLeads(col.key)"
+          (click)="openDetailPanel(lead._id)"
+          [style.border-left-color]="col.color">
+          <div class="kc-customer">
+            <div class="kc-avatar">{{ lead.customer?.name?.charAt(0) }}</div>
+            <div>
+              <strong>{{ lead.customer?.name }}</strong>
+              <small>{{ lead.customer?.phone }}</small>
+            </div>
+          </div>
+          <div class="kc-service">
+            {{ getApplianceEmoji(lead.applianceType) }} {{ lead.applianceType }} — {{ lead.serviceType }}
+          </div>
+          <div class="kc-footer">
+            <span class="kc-eng" *ngIf="lead.assignedTo">
+              <mat-icon>engineering</mat-icon> {{ lead.assignedTo?.name }}
+            </span>
+            <span class="kc-date">{{ lead.createdAt | date:'dd MMM' }}</span>
+          </div>
+        </div>
+        <div class="kc-empty" *ngIf="getKanbanLeads(col.key).length === 0">
+          <span>Koi lead nahi</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DETAIL SIDE PANEL ===== -->
+  <div class="panel-overlay" *ngIf="showDetailPanel" (click)="closeDetailPanel()"></div>
+
+  <div class="detail-panel" [class.open]="showDetailPanel">
+
+    <div class="dp-header">
+      <h2>Lead Detail</h2>
+      <button mat-icon-button (click)="closeDetailPanel()" class="dp-close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="dp-loader" *ngIf="panelLoading">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+
+    <div class="dp-content" *ngIf="!panelLoading && selectedLead">
+
+      <!-- Status Badge -->
+      <div class="dp-status-row">
+        <span class="status-badge {{ getStatusClass(selectedLead.status) }}">
+          {{ selectedLead.status }}
+        </span>
+        <span class="priority-badge {{ getPriorityClass(selectedLead.priority) }}">
+          {{ selectedLead.priority }}
+        </span>
+        <span class="dp-date">{{ selectedLead.createdAt | date:'dd MMM yyyy' }}</span>
+      </div>
+
+      <!-- Customer Card -->
+      <div class="dp-customer-card">
+        <div class="dpc-avatar">{{ selectedLead.customer?.name?.charAt(0) }}</div>
+        <div class="dpc-info">
+          <h3>{{ selectedLead.customer?.name }}</h3>
+          <a [href]="'tel:' + selectedLead.customer?.phone" class="dpc-phone">
+            <mat-icon>phone</mat-icon> {{ selectedLead.customer?.phone }}
+          </a>
+          <p class="dpc-address" *ngIf="selectedLead.address">
+            <mat-icon>location_on</mat-icon> {{ selectedLead.address }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Service Info -->
+      <div class="dp-info-grid">
+        <div class="dp-info-item">
+          <span class="dpi-label">Appliance</span>
+          <span class="dpi-value">{{ getApplianceEmoji(selectedLead.applianceType) }} {{ selectedLead.applianceType }}</span>
+        </div>
+        <div class="dp-info-item">
+          <span class="dpi-label">Service</span>
+          <span class="dpi-value">{{ selectedLead.serviceType }}</span>
+        </div>
+        <div class="dp-info-item">
+          <span class="dpi-label">Source</span>
+          <span class="dpi-value">{{ selectedLead.source || '—' }}</span>
+        </div>
+        <div class="dp-info-item" *ngIf="selectedLead.scheduledDate">
+          <span class="dpi-label">Scheduled</span>
+          <span class="dpi-value">{{ selectedLead.scheduledDate | date:'dd MMM yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="dp-description" *ngIf="selectedLead.description">
+        <mat-icon>description</mat-icon>
+        <span>{{ selectedLead.description }}</span>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="dp-quick-actions">
+        <a [href]="'tel:' + selectedLead.customer?.phone" class="dqa-btn call">
+          <mat-icon>phone</mat-icon> Call
+        </a>
+        <a [href]="'https://wa.me/91' + selectedLead.customer?.phone" target="_blank" class="dqa-btn wa">
+          <mat-icon>message</mat-icon> WhatsApp
+        </a>
+        <a [routerLink]="['/admin/jobs/create', selectedLead._id]" class="dqa-btn job">
+          <mat-icon>build</mat-icon> Job Card
+        </a>
+        <a [routerLink]="['/admin/bills/create']"
+          [queryParams]="{customerId: selectedLead.customer?._id, leadId: selectedLead._id}"
+          class="dqa-btn bill">
+          <mat-icon>receipt</mat-icon> Bill
+        </a>
+      </div>
+
+      <!-- Assign Engineer -->
+      <div class="dp-section">
+        <div class="dp-section-title">Engineer Assign Karo</div>
+        <div class="dp-assign-row">
+          <select class="dp-select" (change)="assignFromPanel($any($event.target).value)">
+            <option value="">Engineer Select Karo</option>
+            <option *ngFor="let eng of engineers" [value]="eng._id"
+              [selected]="selectedLead.assignedTo?._id === eng._id">
+              {{ eng.name }} — {{ eng.phone }}
+            </option>
+          </select>
+        </div>
+        <div class="dp-assigned-eng" *ngIf="selectedLead.assignedTo">
+          <div class="dae-avatar">{{ selectedLead.assignedTo?.name?.charAt(0) }}</div>
+          <div>
+            <strong>{{ selectedLead.assignedTo?.name }}</strong>
+            <small>{{ selectedLead.assignedTo?.phone }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Update -->
+      <div class="dp-section">
+        <div class="dp-section-title">Status Update Karo</div>
+        <div class="dp-status-btns">
+          <button
+            *ngFor="let s of statusOptions"
+            class="dsb-btn {{ getStatusClass(s) }}"
+            [class.active]="selectedLead.status === s"
+            (click)="updateStatusFromPanel(s)">
+            {{ s }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="dp-section">
+        <div class="dp-section-title">Notes ({{ selectedLead.notes?.length || 0 }})</div>
+
+        <div class="dp-notes-list" *ngIf="selectedLead.notes?.length > 0">
+          <div class="dp-note" *ngFor="let note of selectedLead.notes">
+            <div class="note-header">
+              <strong>{{ note.addedBy?.name || 'Admin' }}</strong>
+              <small>{{ note.addedAt | date:'dd MMM, hh:mm a' }}</small>
+            </div>
+            <p>{{ note.text }}</p>
+          </div>
+        </div>
+
+        <div class="dp-add-note">
+          <textarea
+            [(ngModel)]="newNote"
+            placeholder="Note likho..."
+            rows="2"
+            class="note-input">
+          </textarea>
+          <button class="note-add-btn" (click)="addNote()" [disabled]="!newNote.trim() || addingNote">
+            <mat-spinner diameter="14" *ngIf="addingNote"></mat-spinner>
+            <mat-icon *ngIf="!addingNote">send</mat-icon>
+            Add
+          </button>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="dp-section" *ngIf="selectedLead.timeline?.length > 0">
+        <div class="dp-section-title">Activity Timeline</div>
+        <div class="dp-timeline">
+          <!-- <div class="dpt-item" *ngFor="let event of selectedLead.timeline | slice:0:8"> -->
+            <div class="dpt-item" *ngFor="let event of $any(selectedLead.timeline) | slice:0:8">
+            <div class="dpt-dot"></div>
+            <div class="dpt-content">
+         <p>{{ $any(event).description }}</p>
+<small>{{ $any(event).doneAt | date:'dd MMM, hh:mm a' }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Full Detail -->
+      <a [routerLink]="['/admin/leads', selectedLead._id]" class="dp-full-btn">
+        <mat-icon>open_in_full</mat-icon>
+        Poori Detail Dekho
+      </a>
+
+    </div>
+  </div>
+
+</div>

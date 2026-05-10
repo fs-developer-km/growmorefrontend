@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -45,7 +45,8 @@ export class PartList implements OnInit {
   constructor(
     private partService: PartService,
     private toast: ToastService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+      private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -71,6 +72,7 @@ export class PartList implements OnInit {
       next: (res: any) => {
         this.parts = res.parts || [];
         this.loading = false;
+         this.cdr.detectChanges();
       },
       error: () => {
         this.toast.error('Parts load nahi hue');

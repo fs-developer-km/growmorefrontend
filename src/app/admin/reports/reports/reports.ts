@@ -84,9 +84,11 @@ export class Reports implements OnInit, AfterViewInit {
     this.reportService.getRevenueChart(this.selectedPeriod).subscribe({
       next: (res: any) => {
         this.revenueData = res.revenueData || [];
+
         this.leadsData = res.leadsData || [];
         this.chartsLoading = false;
-        setTimeout(() => this.drawCharts(), 100);
+        
+        setTimeout(() => this.drawCharts(), 300);
       },
       error: () => { this.chartsLoading = false; }
     });

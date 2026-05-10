@@ -16,6 +16,11 @@ const routes: Routes = [
         loadComponent: () => import('./leads/lead-list/lead-list').then(m => m.LeadList)
       },
       {
+        path: 'leadsmgmt',
+        loadComponent: () => import('./leads/lead-management/lead-management')
+          .then(m => m.LeadManagement)
+      },
+      {
         path: 'leads/add',
         loadComponent: () => import('./leads/lead-add/lead-add').then(m => m.LeadAdd)
       },
@@ -66,16 +71,16 @@ const routes: Routes = [
           .then(m => m.PartList)
       },
       {
-  path: 'bills/:id',
-  loadComponent: () => import('./billing/bill-detail/bill-detail')
-    .then(m => m.BillDetail)
-},
+        path: 'bills/:id',
+        loadComponent: () => import('./billing/bill-detail/bill-detail')
+          .then(m => m.BillDetail)
+      },
 
-{
-  path: 'reports',
-  loadComponent: () => import('./reports/reports/reports')
-    .then(m => m.Reports)
-},
+      {
+        path: 'reports',
+        loadComponent: () => import('./reports/reports/reports')
+          .then(m => m.Reports)
+      },
       {
         path: '',
         redirectTo: 'dashboard',
