@@ -41,11 +41,12 @@ export class Layout implements OnInit, AfterViewInit {
 menuItems = [
   { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
   { icon: 'assignment', label: 'Leads', route: '/admin/leads' },
-  { icon: 'assignment', label: 'Leads', route: '/admin/leadsmgmt' },
+    { icon: 'assignment', label: 'Leads', route: '/admin/leadsmgmt' },
   { icon: 'engineering', label: 'Engineers', route: '/admin/engineers' },
   { icon: 'people', label: 'Customers', route: '/admin/customers' },
   { icon: 'inventory_2', label: 'Parts', route: '/admin/parts' },
   { icon: 'receipt_long', label: 'Bills', route: '/admin/bills' },
+  { icon: 'verified_user', label: 'AMC', route: '/admin/amc' },
   { icon: 'bar_chart', label: 'Reports', route: '/admin/reports' },
 ];
 

@@ -1,0 +1,226 @@
+<div class="amc-create-page">
+
+  <div class="page-top">
+    <button mat-icon-button routerLink="/admin/amc" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>New AMC Contract</h1>
+      <p>Annual Maintenance Contract create karo</p>
+    </div>
+  </div>
+
+  <form [formGroup]="amcForm" (ngSubmit)="onSubmit()">
+    <div class="create-layout">
+
+      <!-- LEFT -->
+      <div class="left-col">
+
+        <!-- Customer Selection -->
+        <div class="form-card">
+          <div class="fc-title">
+            <div class="fc-icon">👤</div>
+            <span>Customer Select Karo</span>
+          </div>
+
+          <div class="customer-search-wrap">
+            <div class="cs-input-wrap">
+              <mat-icon>search</mat-icon>
+              <input type="text"
+                [(ngModel)]="customerSearch"
+                [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="onCustomerSearch($event)"
+                placeholder="Customer naam ya phone number..."
+                class="cs-input">
+              <mat-spinner diameter="16" *ngIf="searchingCustomer"></mat-spinner>
+            </div>
+
+            <!-- Search Results -->
+            <div class="cs-results" *ngIf="customers.length > 0">
+              <div class="csr-item"
+                *ngFor="let c of customers"
+                (click)="selectCustomer(c)">
+                <div class="csr-avatar">{{ c.name?.charAt(0) }}</div>
+                <div class="csr-info">
+                  <strong>{{ c.name }}</strong>
+                  <span>{{ c.phone }} · {{ c.area || c.city }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Customer -->
+          <div class="selected-customer" *ngIf="selectedCustomer">
+            <div class="sc-avatar">{{ selectedCustomer.name?.charAt(0) }}</div>
+            <div class="sc-info">
+              <h3>{{ selectedCustomer.name }}</h3>
+              <p>📞 {{ selectedCustomer.phone }}</p>
+              <small>📍 {{ selectedCustomer.address }}</small>
+            </div>
+            <button type="button" class="sc-change" (click)="selectedCustomer = null; customerSearch = ''">
+              Change
+            </button>
+          </div>
+        </div>
+
+        <!-- Plan Selection -->
+        <div class="form-card">
+          <div class="fc-title">
+            <div class="fc-icon">⭐</div>
+            <span>Plan Select Karo</span>
+          </div>
+
+          <div class="plans-grid">
+            <div class="plan-option"
+              *ngFor="let plan of plans"
+              [class.selected]="amcForm.get('plan')?.value === plan.value"
+              [style.border-color]="amcForm.get('plan')?.value === plan.value ? plan.color : '#E0E7FF'"
+              (click)="selectPlan(plan)">
+              <div class="po-header" [style.background]="plan.color + '15'">
+                <span class="po-name" [style.color]="plan.color">{{ plan.label }}</span>
+                <mat-icon class="po-check" [style.color]="plan.color"
+                  *ngIf="amcForm.get('plan')?.value === plan.value">
+                  check_circle
+                </mat-icon>
+              </div>
+              <div class="po-body">
+                <span class="po-visits">{{ plan.visits }} Free Visits/Year</span>
+                <span class="po-hint">Suggested: ₹{{ getAmountByPlan() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appliances -->
+        <div class="form-card">
+          <div class="fc-title-row">
+            <div class="fc-title">
+              <div class="fc-icon">🔧</div>
+              <span>Appliances ({{ appliancesArray.length }})</span>
+            </div>
+            <button type="button" class="add-appliance-btn" (click)="addAppliance()">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </div>
+
+          <div formArrayName="appliances">
+            <div class="appliance-row"
+              *ngFor="let ap of appliancesArray.controls; let i = index"
+              [formGroupName]="i">
+
+              <div class="ar-header">
+                <span class="ar-num">{{ i + 1 }}</span>
+                <button type="button" class="ar-remove"
+                  (click)="removeAppliance(i)"
+                  *ngIf="appliancesArray.length > 1">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+
+              <div class="ar-fields">
+                <mat-form-field appearance="outline">
+                  <mat-label>Type</mat-label>
+                  <mat-select formControlName="type">
+                    <mat-option *ngFor="let t of applianceTypes" [value]="t">{{ t }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Brand</mat-label>
+                  <input matInput formControlName="brand" placeholder="Samsung, LG...">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Model</mat-label>
+                  <input matInput formControlName="model" placeholder="Model number">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Serial No.</mat-label>
+                  <input matInput formControlName="serialNumber" placeholder="Serial number">
+                </mat-form-field>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right-col">
+
+        <!-- Contract Details -->
+        <div class="form-card">
+          <div class="fc-title">
+            <div class="fc-icon">📋</div>
+            <span>Contract Details</span>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Start Date</mat-label>
+            <input matInput type="date" formControlName="startDate">
+            <mat-icon matPrefix>calendar_today</mat-icon>
+            <mat-hint>End date auto 1 year baad rahegi</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>AMC Amount (₹)</mat-label>
+            <input matInput type="number" formControlName="amount" min="0"
+              [placeholder]="'Suggested: ₹' + getAmountByPlan()">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-error>Amount zaroori hai</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Payment Method</mat-label>
+            <mat-select formControlName="paymentMethod">
+              <mat-option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>payment</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Free Visits</mat-label>
+            <input matInput type="number" formControlName="totalFreeVisits" min="1">
+            <mat-icon matPrefix>build</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-card">
+          <div class="fc-title">
+            <div class="fc-icon">📝</div>
+            <span>Notes & Terms</span>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Internal Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="2"
+              placeholder="Koi special note..."></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Terms & Conditions</mat-label>
+            <textarea matInput formControlName="terms" rows="5"></textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-card">
+          <button type="submit" class="submit-btn"
+            [disabled]="amcForm.invalid || !selectedCustomer || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <mat-icon *ngIf="!loading">verified_user</mat-icon>
+            <span>{{ loading ? 'Contract Ban Raha Hai...' : 'AMC Contract Banao' }}</span>
+          </button>
+          <button type="button" mat-stroked-button routerLink="/admin/amc" class="cancel-btn">
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+</div>

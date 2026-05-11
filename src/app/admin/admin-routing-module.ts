@@ -81,6 +81,37 @@ const routes: Routes = [
         loadComponent: () => import('./reports/reports/reports')
           .then(m => m.Reports)
       },
+
+
+      // amc routing module 
+
+
+      {
+        path: 'amc',
+        loadComponent: () => import('./amc/amc-dashboard/amc-dashboard')
+          .then(m => m.AmcDashboard)
+      },
+      {
+        path: 'amc/list',
+        loadComponent: () => import('./amc/amc-list/amc-list')
+          .then(m => m.AmcList)
+      },
+      {
+        path: 'amc/create',
+        loadComponent: () => import('./amc/amc-create/amc-create')
+          .then(m => m.AmcCreate)
+      },
+      {
+        path: 'amc/expiring',
+        loadComponent: () => import('./amc/amc-expiring/amc-expiring')
+          .then(m => m.AmcExpiring)
+      },
+      {
+        path: 'amc/:id',
+        loadComponent: () => import('./amc/amc-detail/amc-detail')
+          .then(m => m.AmcDetail)
+      },
+
       {
         path: '',
         redirectTo: 'dashboard',

@@ -1,0 +1,167 @@
+<div class="amc-list-page">
+
+  <div class="page-top">
+    <div class="page-title">
+      <button mat-icon-button routerLink="/admin/amc" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1>All AMC Contracts</h1>
+        <p>{{ total }} total contracts</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-export" (click)="exportExcel()" [disabled]="exporting">
+        <mat-spinner diameter="16" *ngIf="exporting"></mat-spinner>
+        <mat-icon *ngIf="!exporting">download</mat-icon>
+        Export CSV
+      </button>
+      <button class="btn-primary" routerLink="/admin/amc/create">
+        <mat-icon>add</mat-icon> New AMC
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [(ngModel)]="searchQuery"
+        (ngModelChange)="applyFilters()"
+        placeholder="Customer name ya contract number..."
+        class="search-input">
+    </div>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()">
+        <mat-option value="">Sab</mat-option>
+        <mat-option *ngFor="let s of statusOptions" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Plan</mat-label>
+      <mat-select [(ngModel)]="selectedPlan" (ngModelChange)="applyFilters()">
+        <mat-option value="">Sab Plans</mat-option>
+        <mat-option *ngFor="let p of planOptions" [value]="p">{{ p }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button class="clear-btn" (click)="clearFilters()" *ngIf="searchQuery || selectedStatus || selectedPlan">
+      <mat-icon>clear</mat-icon> Clear
+    </button>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-center" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && contracts.length === 0">
+    <div class="es-icon">📋</div>
+    <h3>Koi contract nahi mila</h3>
+    <p>Filter change karo ya naya AMC banao</p>
+    <button class="btn-primary" routerLink="/admin/amc/create">
+      <mat-icon>add</mat-icon> New AMC Contract
+    </button>
+  </div>
+
+  <!-- Contracts Grid -->
+  <div class="contracts-grid" *ngIf="!loading && contracts.length > 0">
+    <div class="contract-card"
+      *ngFor="let amc of contracts"
+      [routerLink]="['/admin/amc', amc._id]">
+
+      <!-- Card Header -->
+      <div class="cc-header" [style.border-color]="getPlanColor(amc.plan)">
+        <div class="cc-plan-badge" [style.background]="getPlanColor(amc.plan) + '15'"
+          [style.color]="getPlanColor(amc.plan)"
+          [style.border-color]="getPlanColor(amc.plan) + '30'">
+          {{ amc.plan }} Plan
+        </div>
+        <span class="cc-status {{ getStatusClass(amc.status) }}">{{ amc.status }}</span>
+      </div>
+
+      <!-- Customer -->
+      <div class="cc-customer">
+        <div class="cc-avatar" [style.background]="getPlanColor(amc.plan)">
+          {{ amc.customer?.name?.charAt(0) }}
+        </div>
+        <div class="cc-info">
+          <h3>{{ amc.customer?.name }}</h3>
+          <p>📞 {{ amc.customer?.phone }}</p>
+          <small>{{ amc.contractNumber }}</small>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="cc-dates">
+        <div class="date-item">
+          <span class="di-label">Start</span>
+          <span class="di-val">{{ amc.startDate | date:'dd MMM yyyy' }}</span>
+        </div>
+        <div class="date-arrow">→</div>
+        <div class="date-item">
+          <span class="di-label">End</span>
+          <span class="di-val" [class.expiring]="getDaysLeft(amc.endDate) <= 30 && amc.status === 'Active'">
+            {{ amc.endDate | date:'dd MMM yyyy' }}
+          </span>
+        </div>
+        <div class="days-chip" *ngIf="amc.status === 'Active'"
+          [class.urgent]="getDaysLeft(amc.endDate) <= 7"
+          [class.warning]="getDaysLeft(amc.endDate) > 7 && getDaysLeft(amc.endDate) <= 30">
+          {{ getDaysLeft(amc.endDate) > 0 ? getDaysLeft(amc.endDate) + 'd left' : 'Expired' }}
+        </div>
+      </div>
+
+      <!-- Visits Progress -->
+      <div class="cc-visits">
+        <div class="visits-header">
+          <span>Service Visits</span>
+          <span>{{ amc.usedVisits }}/{{ amc.totalFreeVisits }}</span>
+        </div>
+        <div class="visits-bar">
+          <div class="visits-fill"
+            [style.width]="getVisitsPercent(amc) + '%'"
+            [style.background]="getPlanColor(amc.plan)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="cc-amount">
+        <div class="amount-item">
+          <span class="ai-label">Amount</span>
+          <span class="ai-val total">₹{{ amc.amount | number }}</span>
+        </div>
+        <div class="amount-divider"></div>
+        <div class="amount-item">
+          <span class="ai-label">Paid</span>
+          <span class="ai-val paid">₹{{ amc.paidAmount | number }}</span>
+        </div>
+        <div class="amount-divider"></div>
+        <div class="amount-item">
+          <span class="ai-label">Status</span>
+          <span class="payment-badge {{ amc.paymentStatus?.toLowerCase() }}">
+            {{ amc.paymentStatus }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="cc-footer" (click)="$event.stopPropagation()">
+        <button class="cf-btn pdf"
+          (click)="downloadPdf(amc._id, amc.contractNumber, $event)">
+          <mat-icon>picture_as_pdf</mat-icon> PDF
+        </button>
+        <button class="cf-btn view" [routerLink]="['/admin/amc', amc._id]">
+          <mat-icon>open_in_new</mat-icon> Detail
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

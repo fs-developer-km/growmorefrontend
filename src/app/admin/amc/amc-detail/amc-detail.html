@@ -1,0 +1,338 @@
+<div class="amc-detail-page">
+
+  <!-- Header -->
+  <div class="page-top">
+    <button mat-icon-button routerLink="/admin/amc/list" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="pt-title" *ngIf="amc">
+      <h1>{{ amc.contractNumber }}</h1>
+      <p>AMC Contract Detail</p>
+    </div>
+    <div class="pt-actions" *ngIf="amc">
+      <span class="status-badge {{ getStatusClass(amc.status) }}">{{ amc.status }}</span>
+    </div>
+  </div>
+
+  <div class="loader-center" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <div class="detail-layout" *ngIf="!loading && amc">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- Contract Overview Card -->
+      <div class="overview-card" [style.border-color]="getPlanColor(amc.plan)">
+        <div class="oc-header" [style.background]="'linear-gradient(135deg, ' + getPlanColor(amc.plan) + ', ' + getPlanColor(amc.plan) + 'CC)'">
+          <div class="oc-plan-info">
+            <span class="oc-contract-no">{{ amc.contractNumber }}</span>
+            <span class="oc-plan-name">{{ amc.plan }} Plan</span>
+          </div>
+          <div class="oc-amount">
+            <span class="oc-amt">₹{{ amc.amount | number }}</span>
+            <span class="oc-amt-label">Total Amount</span>
+          </div>
+        </div>
+
+        <div class="oc-body">
+          <!-- Customer -->
+          <div class="oc-customer">
+            <div class="occ-avatar" [style.background]="getPlanColor(amc.plan)">
+              {{ amc.customer?.name?.charAt(0) }}
+            </div>
+            <div class="occ-info">
+              <h2>{{ amc.customer?.name }}</h2>
+              <a [href]="'tel:' + amc.customer?.phone" class="occ-phone">
+                <mat-icon>phone</mat-icon> {{ amc.customer?.phone }}
+              </a>
+              <p *ngIf="amc.customer?.address">
+                <mat-icon>location_on</mat-icon> {{ amc.customer?.address }}
+              </p>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <!-- Dates & Visits -->
+          <div class="oc-meta-grid">
+            <div class="ocm-item">
+              <mat-icon>calendar_today</mat-icon>
+              <div>
+                <span class="ocm-label">Start Date</span>
+                <span class="ocm-val">{{ amc.startDate | date:'dd MMM yyyy' }}</span>
+              </div>
+            </div>
+            <div class="ocm-item" [class.expiring]="getDaysLeft() <= 30 && amc.status === 'Active'">
+              <mat-icon>event_busy</mat-icon>
+              <div>
+                <span class="ocm-label">End Date</span>
+                <span class="ocm-val">{{ amc.endDate | date:'dd MMM yyyy' }}</span>
+                <span class="days-chip" *ngIf="amc.status === 'Active'"
+                  [class.urgent]="getDaysLeft() <= 7"
+                  [class.warning]="getDaysLeft() > 7 && getDaysLeft() <= 30">
+                  {{ getDaysLeft() > 0 ? getDaysLeft() + ' days left' : 'Expired' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visits Progress -->
+          <div class="oc-visits">
+            <div class="visits-header">
+              <span>Service Visits Used</span>
+              <div class="visits-nums">
+                <span class="used">{{ amc.usedVisits }}</span>
+                <span class="separator">/</span>
+                <span class="total">{{ amc.totalFreeVisits }}</span>
+              </div>
+            </div>
+            <div class="visits-bar">
+              <div class="visits-fill"
+                [style.width]="getVisitsPercent() + '%'"
+                [style.background]="getPlanColor(amc.plan)">
+              </div>
+            </div>
+            <div class="visits-remaining">
+              <mat-icon>build</mat-icon>
+              {{ getRemainingVisits() }} visits remaining
+            </div>
+          </div>
+
+          <!-- Payment Status -->
+          <div class="oc-payment">
+            <div class="op-row">
+              <span>Total Amount</span>
+              <span class="op-total">₹{{ amc.amount | number }}</span>
+            </div>
+            <div class="op-row">
+              <span>Paid</span>
+              <span class="op-paid">₹{{ amc.paidAmount | number }}</span>
+            </div>
+            <div class="op-row pending" *ngIf="amc.amount > amc.paidAmount">
+              <span>Pending</span>
+              <span class="op-pending">₹{{ (amc.amount - amc.paidAmount) | number }}</span>
+            </div>
+            <div class="op-status-row">
+              <span class="payment-badge {{ amc.paymentStatus?.toLowerCase() }}">
+                {{ amc.paymentStatus }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Appliances Card -->
+      <div class="info-card" *ngIf="amc.appliances?.length > 0">
+        <div class="ic-title">
+          <span class="ic-icon">🔧</span>
+          <span>Covered Appliances ({{ amc.appliances.length }})</span>
+        </div>
+        <div class="appliances-list">
+          <div class="appliance-item" *ngFor="let ap of amc.appliances">
+            <div class="ai-emoji">
+              {{ ap.type === 'AC' ? '❄️' : ap.type === 'Refrigerator' ? '🧊' :
+                 ap.type === 'Washing Machine' ? '🌀' : ap.type === 'Geyser' ? '🔥' : '🔧' }}
+            </div>
+            <div class="ai-info">
+              <strong>{{ ap.type }}</strong>
+              <span *ngIf="ap.brand || ap.model">{{ ap.brand }} {{ ap.model }}</span>
+              <small *ngIf="ap.serialNumber">S/N: {{ ap.serialNumber }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- Action Buttons -->
+      <div class="action-card">
+        <div class="ic-title">
+          <span class="ic-icon">⚡</span>
+          <span>Quick Actions</span>
+        </div>
+
+        <button class="action-btn pdf-btn" (click)="downloadPdf()" [disabled]="downloadingPdf">
+          <mat-spinner diameter="18" *ngIf="downloadingPdf"></mat-spinner>
+          <mat-icon *ngIf="!downloadingPdf">picture_as_pdf</mat-icon>
+          {{ downloadingPdf ? 'Downloading...' : 'Certificate PDF Download' }}
+        </button>
+
+        <button class="action-btn wa-btn" (click)="shareWhatsApp()" [disabled]="gettingWa">
+          <mat-spinner diameter="18" *ngIf="gettingWa"></mat-spinner>
+          <mat-icon *ngIf="!gettingWa">message</mat-icon>
+          {{ gettingWa ? 'Opening...' : 'WhatsApp Pe Share Karo' }}
+        </button>
+
+        <button class="action-btn visit-btn" (click)="showVisitForm = !showVisitForm"
+          *ngIf="amc.status === 'Active'">
+          <mat-icon>build</mat-icon>
+          Visit Record Karo
+        </button>
+
+        <button class="action-btn payment-btn" (click)="showPaymentForm = !showPaymentForm"
+          *ngIf="amc.paymentStatus !== 'Paid'">
+          <mat-icon>payments</mat-icon>
+          Payment Add Karo
+        </button>
+
+        <button class="action-btn renew-btn" (click)="showRenewForm = !showRenewForm"
+          *ngIf="amc.status === 'Active' || amc.status === 'Expired'">
+          <mat-icon>autorenew</mat-icon>
+          Contract Renew Karo
+        </button>
+
+        <button class="action-btn cancel-btn" (click)="cancelContract()"
+          *ngIf="amc.status === 'Active'" [disabled]="cancelLoading">
+          <mat-spinner diameter="18" *ngIf="cancelLoading"></mat-spinner>
+          <mat-icon *ngIf="!cancelLoading">cancel</mat-icon>
+          Contract Cancel Karo
+        </button>
+      </div>
+
+      <!-- Add Visit Form -->
+      <div class="form-card" *ngIf="showVisitForm">
+        <div class="ic-title">
+          <span class="ic-icon">🔧</span>
+          <span>Visit Record Karo</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Engineer</mat-label>
+          <mat-select [(ngModel)]="visitForm.engineerId">
+            <mat-option *ngFor="let eng of engineers" [value]="eng._id">{{ eng.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Kaam Kya Kiya</mat-label>
+          <textarea matInput [(ngModel)]="visitForm.workDone" rows="3"
+            placeholder="Service details..."></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="visitForm.status">
+            <mat-option value="Completed">Completed</mat-option>
+            <mat-option value="Scheduled">Scheduled</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button class="action-btn visit-btn" (click)="addVisit()" [disabled]="addingVisit">
+          <mat-spinner diameter="18" *ngIf="addingVisit"></mat-spinner>
+          <mat-icon *ngIf="!addingVisit">save</mat-icon>
+          {{ addingVisit ? 'Saving...' : 'Visit Save Karo' }}
+        </button>
+      </div>
+
+      <!-- Add Payment Form -->
+      <div class="form-card" *ngIf="showPaymentForm">
+        <div class="ic-title">
+          <span class="ic-icon">💰</span>
+          <span>Payment Add Karo</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Amount (₹)</mat-label>
+          <input matInput type="number" [(ngModel)]="paymentForm.amount">
+          <span matPrefix>₹&nbsp;</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Payment Method</mat-label>
+          <mat-select [(ngModel)]="paymentForm.method">
+            <mat-option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button class="action-btn payment-btn" (click)="addPayment()" [disabled]="addingPayment">
+          <mat-spinner diameter="18" *ngIf="addingPayment"></mat-spinner>
+          <mat-icon *ngIf="!addingPayment">save</mat-icon>
+          {{ addingPayment ? 'Saving...' : 'Payment Save Karo' }}
+        </button>
+      </div>
+
+      <!-- Renew Form -->
+      <div class="form-card" *ngIf="showRenewForm">
+        <div class="ic-title">
+          <span class="ic-icon">🔄</span>
+          <span>Contract Renew Karo</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>New Plan</mat-label>
+          <mat-select [(ngModel)]="renewForm.plan">
+            <mat-option value="Basic">Basic</mat-option>
+            <mat-option value="Standard">Standard</mat-option>
+            <mat-option value="Premium">Premium</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Renewal Amount (₹)</mat-label>
+          <input matInput type="number" [(ngModel)]="renewForm.amount">
+          <span matPrefix>₹&nbsp;</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-w">
+          <mat-label>Payment Method</mat-label>
+          <mat-select [(ngModel)]="renewForm.paymentMethod">
+            <mat-option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button class="action-btn renew-btn" (click)="renewContract()" [disabled]="renewLoading">
+          <mat-spinner diameter="18" *ngIf="renewLoading"></mat-spinner>
+          <mat-icon *ngIf="!renewLoading">autorenew</mat-icon>
+          {{ renewLoading ? 'Renewing...' : 'Renew Karo' }}
+        </button>
+      </div>
+
+      <!-- Visit History -->
+      <div class="info-card" *ngIf="amc.visits?.length > 0">
+        <div class="ic-title">
+          <span class="ic-icon">📋</span>
+          <span>Visit History ({{ amc.visits.length }})</span>
+        </div>
+
+        <div class="visits-timeline">
+          <div class="vt-item" *ngFor="let visit of amc.visits">
+            <div class="vt-dot" [class.completed]="visit.status === 'Completed'"
+              [class.scheduled]="visit.status === 'Scheduled'"></div>
+            <div class="vt-content">
+              <div class="vt-header">
+                <span class="vt-status {{ visit.status?.toLowerCase() }}">{{ visit.status }}</span>
+                <span class="vt-date">{{ visit.visitDate | date:'dd MMM yyyy' }}</span>
+              </div>
+              <p *ngIf="visit.workDone">{{ visit.workDone }}</p>
+              <small *ngIf="visit.engineer">👷 {{ visit.engineer?.name }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment History -->
+      <div class="info-card" *ngIf="amc.paymentHistory?.length > 0">
+        <div class="ic-title">
+          <span class="ic-icon">💳</span>
+          <span>Payment History</span>
+        </div>
+        <div class="payment-history">
+          <div class="ph-item" *ngFor="let p of amc.paymentHistory">
+            <div class="ph-left">
+              <span class="ph-method">{{ p.method }}</span>
+              <span class="ph-date">{{ p.date | date:'dd MMM yyyy' }}</span>
+            </div>
+            <span class="ph-amount">₹{{ p.amount | number }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

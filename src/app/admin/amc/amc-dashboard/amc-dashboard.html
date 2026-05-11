@@ -1,0 +1,210 @@
+<div class="amc-dashboard">
+
+  <!-- Header -->
+  <div class="page-top">
+    <div class="page-title">
+      <h1>AMC Management 🔄</h1>
+      <p>Annual Maintenance Contracts — track, renew, manage</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" routerLink="/admin/amc/expiring">
+        <mat-icon>notifications_active</mat-icon>
+        <span class="hide-mobile">Expiring</span>
+        <span class="alert-dot" *ngIf="grouped.sevenDays?.length > 0">{{ grouped.sevenDays.length }}</span>
+      </button>
+      <button class="btn-outline" routerLink="/admin/amc/list">
+        <mat-icon>list</mat-icon>
+        <span class="hide-mobile">All Contracts</span>
+      </button>
+      <button class="btn-primary" routerLink="/admin/amc/create">
+        <mat-icon>add</mat-icon>
+        <span>New AMC</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-center" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && stats">
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+
+      <div class="stat-card active-card">
+        <div class="sc-icon">✅</div>
+        <div class="sc-body">
+          <span class="sc-num">{{ stats.totalActive }}</span>
+          <span class="sc-label">Active Contracts</span>
+        </div>
+        <div class="sc-trend">📈</div>
+      </div>
+
+      <div class="stat-card mrr-card">
+        <div class="sc-icon">💰</div>
+        <div class="sc-body">
+          <span class="sc-num">₹{{ stats.totalMRR | number }}</span>
+          <span class="sc-label">Monthly Revenue</span>
+        </div>
+        <div class="sc-trend">📊</div>
+      </div>
+
+      <div class="stat-card expiring-card">
+        <div class="sc-icon">⏰</div>
+        <div class="sc-body">
+          <span class="sc-num">{{ stats.expiringCount }}</span>
+          <span class="sc-label">Expiring in 30 days</span>
+        </div>
+        <div class="sc-trend">⚠️</div>
+      </div>
+
+      <div class="stat-card revenue-card">
+        <div class="sc-icon">💵</div>
+        <div class="sc-body">
+          <span class="sc-num">₹{{ stats.totalRevenue | number }}</span>
+          <span class="sc-label">Total Collected</span>
+        </div>
+        <div class="sc-trend">💳</div>
+      </div>
+
+      <div class="stat-card pending-card">
+        <div class="sc-icon">🔔</div>
+        <div class="sc-body">
+          <span class="sc-num">₹{{ stats.pendingRevenue | number }}</span>
+          <span class="sc-label">Pending Payment</span>
+        </div>
+        <div class="sc-trend">📋</div>
+      </div>
+
+      <div class="stat-card expired-card">
+        <div class="sc-icon">❌</div>
+        <div class="sc-body">
+          <span class="sc-num">{{ stats.totalExpired }}</span>
+          <span class="sc-label">Expired</span>
+        </div>
+        <div class="sc-trend">🔄</div>
+      </div>
+
+    </div>
+
+    <!-- Plan Breakdown -->
+    <div class="plan-breakdown">
+      <div class="pb-title">Plan Distribution</div>
+      <div class="pb-plans">
+        <div class="plan-card basic">
+          <div class="plan-icon">🔵</div>
+          <div class="plan-info">
+            <span class="plan-count">{{ stats.planBreakdown?.Basic || 0 }}</span>
+            <span class="plan-name">Basic</span>
+          </div>
+        </div>
+        <div class="plan-card standard">
+          <div class="plan-icon">🟢</div>
+          <div class="plan-info">
+            <span class="plan-count">{{ stats.planBreakdown?.Standard || 0 }}</span>
+            <span class="plan-name">Standard</span>
+          </div>
+        </div>
+        <div class="plan-card premium">
+          <div class="plan-icon">🟡</div>
+          <div class="plan-info">
+            <span class="plan-count">{{ stats.planBreakdown?.Premium || 0 }}</span>
+            <span class="plan-name">Premium</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expiring Soon Alert -->
+    <div class="expiring-section" *ngIf="expiringContracts.length > 0">
+      <div class="es-header">
+        <div class="es-title">
+          <mat-icon>notifications_active</mat-icon>
+          <span>Expiring Soon ({{ expiringContracts.length }})</span>
+        </div>
+        <a routerLink="/admin/amc/expiring" class="es-link">Sab Dekho →</a>
+      </div>
+
+      <!-- Urgent -->
+      <div class="urgency-group" *ngIf="grouped.sevenDays?.length > 0">
+        <div class="ug-label urgent">🚨 7 din mein expire ({{ grouped.sevenDays.length }})</div>
+        <div class="expiring-list">
+          <div class="exp-card"
+            *ngFor="let amc of grouped.sevenDays"
+            [routerLink]="['/admin/amc', amc._id]">
+            <div class="exp-left">
+              <div class="exp-avatar" [style.background]="getPlanColor(amc.plan)">
+                {{ amc.customer?.name?.charAt(0) }}
+              </div>
+              <div class="exp-info">
+                <h3>{{ amc.customer?.name }}</h3>
+                <p>{{ amc.contractNumber }} · {{ amc.plan }}</p>
+                <small>📞 {{ amc.customer?.phone }}</small>
+              </div>
+            </div>
+            <div class="exp-right">
+              <div class="days-left urgent">{{ getDaysLeft(amc.endDate) }}d left</div>
+              <button class="wa-quick-btn"
+                (click)="sendWhatsApp(amc); $event.stopPropagation()">
+                <mat-icon>message</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning -->
+      <div class="urgency-group" *ngIf="grouped.fifteenDays?.length > 0">
+        <div class="ug-label warning">⚠️ 15 din mein expire ({{ grouped.fifteenDays.length }})</div>
+        <div class="expiring-list">
+          <div class="exp-card"
+            *ngFor="let amc of grouped.fifteenDays"
+            [routerLink]="['/admin/amc', amc._id]">
+            <div class="exp-left">
+              <div class="exp-avatar" [style.background]="getPlanColor(amc.plan)">
+                {{ amc.customer?.name?.charAt(0) }}
+              </div>
+              <div class="exp-info">
+                <h3>{{ amc.customer?.name }}</h3>
+                <p>{{ amc.contractNumber }} · {{ amc.plan }}</p>
+              </div>
+            </div>
+            <div class="exp-right">
+              <div class="days-left warning">{{ getDaysLeft(amc.endDate) }}d left</div>
+              <button class="wa-quick-btn" (click)="sendWhatsApp(amc); $event.stopPropagation()">
+                <mat-icon>message</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-card">
+      <div class="qac-title">⚡ Quick Actions</div>
+      <div class="qac-grid">
+        <button class="qa-btn" routerLink="/admin/amc/create">
+          <mat-icon>add_circle</mat-icon>
+          <span>New Contract</span>
+        </button>
+        <button class="qa-btn" routerLink="/admin/amc/list">
+          <mat-icon>list_alt</mat-icon>
+          <span>All Contracts</span>
+        </button>
+        <button class="qa-btn" routerLink="/admin/amc/expiring">
+          <mat-icon>alarm</mat-icon>
+          <span>Expiring</span>
+        </button>
+        <button class="qa-btn" (click)="exportAll()">
+          <mat-icon>download</mat-icon>
+          <span>Export Excel</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

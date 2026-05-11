@@ -1,0 +1,92 @@
+<div class="expiring-page">
+
+  <div class="page-top">
+    <button mat-icon-button routerLink="/admin/amc" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Expiring Contracts ⏰</h1>
+      <p>{{ contracts.length }} contracts expiring in next 30 days</p>
+    </div>
+  </div>
+
+  <!-- Alert Banner -->
+  <div class="alert-banner" *ngIf="grouped.sevenDays?.length > 0">
+    <mat-icon>warning</mat-icon>
+    <span>
+      <strong>{{ grouped.sevenDays.length }} contracts</strong> sirf 7 din mein expire ho rahe hain!
+      Turant action lo.
+    </span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="exp-tabs">
+    <button class="et-btn" [class.active]="selectedTab === 'all'" (click)="selectedTab = 'all'">
+      Sab ({{ contracts.length }})
+    </button>
+    <button class="et-btn urgent" [class.active]="selectedTab === 'seven'" (click)="selectedTab = 'seven'">
+      🚨 7 Din ({{ grouped.sevenDays?.length || 0 }})
+    </button>
+    <button class="et-btn warning" [class.active]="selectedTab === 'fifteen'" (click)="selectedTab = 'fifteen'">
+      ⚠️ 15 Din ({{ grouped.fifteenDays?.length || 0 }})
+    </button>
+    <button class="et-btn normal" [class.active]="selectedTab === 'thirty'" (click)="selectedTab = 'thirty'">
+      📅 30 Din ({{ grouped.thirtyDays?.length || 0 }})
+    </button>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-center" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && displayContracts.length === 0">
+    <div class="es-icon">🎉</div>
+    <h3>Koi contract expire nahi ho raha</h3>
+    <p>Sab contracts safe hain</p>
+  </div>
+
+  <!-- Contracts List -->
+  <div class="exp-list" *ngIf="!loading && displayContracts.length > 0">
+    <div class="exp-item"
+      *ngFor="let amc of displayContracts"
+      [routerLink]="['/admin/amc', amc._id]">
+
+      <div class="ei-urgency"
+        [class.urgent]="getDaysLeft(amc.endDate) <= 7"
+        [class.warning]="getDaysLeft(amc.endDate) > 7 && getDaysLeft(amc.endDate) <= 15"
+        [class.normal]="getDaysLeft(amc.endDate) > 15">
+        <span class="ei-days">{{ getDaysLeft(amc.endDate) }}</span>
+        <span class="ei-days-label">days</span>
+      </div>
+
+      <div class="ei-avatar" [style.background]="getPlanColor(amc.plan)">
+        {{ amc.customer?.name?.charAt(0) }}
+      </div>
+
+      <div class="ei-info">
+        <h3>{{ amc.customer?.name }}</h3>
+        <p>{{ amc.contractNumber }} · {{ amc.plan }} Plan</p>
+        <div class="ei-meta">
+          <span>📞 {{ amc.customer?.phone }}</span>
+          <span>Expires: {{ amc.endDate | date:'dd MMM yyyy' }}</span>
+          <span>₹{{ amc.amount | number }}</span>
+        </div>
+      </div>
+
+      <div class="ei-actions" (click)="$event.stopPropagation()">
+        <button class="ea-btn wa" (click)="sendWhatsApp(amc)">
+          <mat-icon>message</mat-icon>
+          <span class="hide-mobile">Remind</span>
+        </button>
+        <button class="ea-btn renew" [routerLink]="['/admin/amc', amc._id]">
+          <mat-icon>autorenew</mat-icon>
+          <span class="hide-mobile">Renew</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
