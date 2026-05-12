@@ -1,192 +1,466 @@
-// ================================================
-//  GROWMORE — layout.component.scss
-// ================================================
+// ============================================
+//  GROWMORE CRM — layout.component.scss
+// ============================================
 
 .sidenav-container {
   height: 100vh;
   background: #F0F4FF;
 }
 
-// ===== SIDEBAR =====
+// ===================================================
+//  SIDEBAR
+// ===================================================
 .sidenav {
-  width: 250px;
+  width: 252px;
   background: #0D1B4B;
   border-right: none !important;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden; // sidenav khud scroll nahi karega
 
-  // ----- Logo -----
-  .sidebar-header {
-    padding: 18px 14px;
-    background: #0A1540;
-    flex-shrink: 0;
+  @media (max-width: 768px) { width: 272px; }
+}
 
-    .logo-wrap {
-      display: flex;
-      align-items: center;
-      gap: 11px;
+// ── Logo ──────────────────────────────────────────
+.sidebar-header {
+  padding: 18px 14px;
+  background: #0A1540;
+  flex-shrink: 0;
 
-      .logo-circle {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #1976D2, #42A5F5);
-        color: white;
-        font-size: 1.2rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .logo-text {
-        display: flex;
-        flex-direction: column;
-
-        .logo-title {
-          color: white;
-          font-size: 1rem;
-          font-weight: 700;
-          line-height: 1.2;
-        }
-
-        .logo-sub {
-          color: rgba(255,255,255,0.38);
-          font-size: 0.65rem;
-          font-weight: 400;
-        }
-      }
-    }
-  }
-
-  // ----- User info -----
-  .sidebar-user {
+  .logo-wrap {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 13px 14px;
-    background: rgba(255,255,255,0.04);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    flex-shrink: 0;
+    gap: 11px;
+  }
 
-    .user-avatar-lg {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1565C0, #42A5F5);
+  .logo-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+
+    .logo-title {
       color: white;
-      font-size: 0.78rem;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.2;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .logo-sub {
+      color: rgba(255,255,255,0.32);
+      font-size: 0.62rem;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 1px;
+    }
+  }
+}
+
+// ── User Info ────────────────────────────────────
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+
+  .user-avatar-lg {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    color: white;
+    font-size: 0.74rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .user-name-sm {
+      color: rgba(255,255,255,0.92);
+      font-size: 0.82rem;
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .user-role {
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+      gap: 5px;
+      color: rgba(255,255,255,0.34);
+      font-size: 0.62rem;
+      margin-top: 2px;
 
-    .user-info {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-
-      .user-name-sm {
-        color: white;
-        font-size: 0.82rem;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .user-role {
-        color: rgba(255,255,255,0.38);
-        font-size: 0.63rem;
-      }
-    }
-  }
-
-  // ----- Nav section label -----
-  .nav-section-label {
-    padding: 12px 16px 4px;
-    color: rgba(255,255,255,0.28);
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.9px;
-    text-transform: uppercase;
-  }
-
-  // ----- Nav list -----
-  .nav-list {
-    flex: 1;
-    padding: 6px 8px;
-    overflow-y: auto;
-
-    &::-webkit-scrollbar { width: 3px; }
-    &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
-  }
-
-  .nav-item {
-    color: rgba(255,255,255,0.6) !important;
-    border-radius: 10px !important;
-    margin-bottom: 3px !important;
-    height: 44px !important;
-    transition: all 0.2s !important;
-    font-family: 'Plus Jakarta Sans', sans-serif !important;
-
-    mat-icon {
-      color: rgba(255,255,255,0.5) !important;
-      font-size: 19px !important;
-      width: 19px !important;
-      height: 19px !important;
-    }
-
-    span {
-      font-size: 0.84rem !important;
-      font-weight: 400 !important;
-      font-family: 'Plus Jakarta Sans', sans-serif !important;
-      color:#FFFFFF80;
-    }
-
-    &:hover {
-      background: rgba(255,255,255,0.07) !important;
-      color: white !important;
-      mat-icon { color: white !important; }
-    }
-
-    &.active-link {
-      background: linear-gradient(135deg, #1565C0, #1976D2) !important;
-      color: white !important;
-      box-shadow: 0 4px 14px rgba(21,101,192,0.4);
-
-      mat-icon { color: white !important; }
-      span { font-weight: 600 !important; }
-    }
-  }
-
-  // ----- Footer -----
-  .sidebar-footer {
-    padding: 8px;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    flex-shrink: 0;
-
-    .logout-item {
-      color: #EF9A9A !important;
-      border-radius: 10px !important;
-      height: 44px !important;
-      font-family: 'Plus Jakarta Sans', sans-serif !important;
-
-      mat-icon { color: #EF9A9A !important; }
-      span { font-size: 0.84rem !important; }
-
-      &:hover {
-        background: rgba(239,154,154,0.1) !important;
+      .online-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #10B981;
+        box-shadow: 0 0 5px rgba(16,185,129,0.7);
+        flex-shrink: 0;
+        animation: blink 2s infinite;
       }
     }
   }
 }
 
-// ===== TOOLBAR =====
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+// ── Scrollable Nav ────────────────────────────────
+.nav-scroll-area {
+  flex: 1;            // remaining space le lo
+  overflow-y: auto;   // scroll karo
+  overflow-x: hidden;
+  padding: 6px 8px 8px;
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-radius: 4px;
+  }
+}
+
+// ── Section Label ─────────────────────────────────
+.nav-section-label {
+  padding: 8px 8px 6px;
+  color: rgba(255,255,255,0.22);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+// ── Nav Group ─────────────────────────────────────
+.nav-group {
+  margin-bottom: 2px;
+}
+
+// ── Parent Button ─────────────────────────────────
+.nav-parent-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-align: left;
+
+  // Icon box
+  .npb-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.18s;
+
+    mat-icon {
+      font-size: 17px;
+      width: 17px;
+      height: 17px;
+      color: rgba(255,255,255,0.45);
+      transition: color 0.18s;
+    }
+
+    &.npb-icon-active {
+      background: rgba(99,102,241,0.28);
+      mat-icon { color: #A5B4FC; }
+    }
+  }
+
+  // Label
+  .npb-label {
+    flex: 1;
+    font-size: 0.84rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.72); // was 0.6 — now more visible
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.18s;
+  }
+
+  // Right side — count + arrow
+  .npb-meta {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    margin-left: 4px;
+
+    .npb-count {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.07);
+      padding: 1px 5px;
+      border-radius: 5px;
+      line-height: 1.5;
+    }
+
+    .npb-arrow {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: rgba(255,255,255,0.28);
+      transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1),
+                  color 0.18s;
+
+      &.npb-arrow-open {
+        transform: rotate(180deg);
+        color: rgba(255,255,255,0.55);
+      }
+    }
+  }
+
+  // Hover
+  &:hover {
+    background: rgba(255,255,255,0.07);
+
+    .npb-icon {
+      background: rgba(99,102,241,0.18);
+      mat-icon { color: rgba(255,255,255,0.82); }
+    }
+
+    .npb-label { color: rgba(255,255,255,0.92); }
+  }
+
+  // Active (current page)
+  &.is-active {
+    background: linear-gradient(135deg,
+      rgba(99,102,241,0.28),
+      rgba(139,92,246,0.18));
+    border: 1px solid rgba(99,102,241,0.24);
+
+    .npb-icon {
+      background: linear-gradient(135deg,
+        rgba(99,102,241,0.42),
+        rgba(139,92,246,0.32));
+      mat-icon { color: #C7D2FE; }
+    }
+
+    .npb-label {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .npb-count {
+      background: rgba(99,102,241,0.3);
+      color: #A5B4FC;
+    }
+  }
+
+  // Open (dropdown expanded)
+  &.is-open {
+    background: rgba(255,255,255,0.05);
+
+    .npb-label { color: rgba(255,255,255,0.88); }
+    .npb-count {
+      background: rgba(99,102,241,0.22);
+      color: #A5B4FC;
+    }
+  }
+}
+
+// ── Submenu ───────────────────────────────────────
+.submenu-wrap {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.30s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity    0.22s ease;
+
+  &.submenu-open {
+    max-height: 400px;
+    opacity: 1;
+  }
+}
+
+.submenu-inner {
+  position: relative;
+  padding: 4px 0 6px 16px; // left indent
+}
+
+// Vertical track line
+.submenu-line {
+  position: absolute;
+  left: 23px;
+  top: 6px;
+  bottom: 6px;
+  width: 1.5px;
+  background: linear-gradient(
+    to bottom,
+    rgba(99,102,241,0.55),
+    rgba(99,102,241,0.04)
+  );
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.submenu-items {
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px; // tight gap between sub items
+}
+
+// ── Sub Button ─────────────────────────────────────
+.sub-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 11px;      // vertical spacing inside button
+  margin: 3px 1px;          // gap between buttons
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-align: left;
+
+  .sub-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: rgba(255,255,255,0.38); // slightly brighter
+    flex-shrink: 0;
+    transition: color 0.16s;
+  }
+
+  .sub-label {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(255,255,255,0.58); // KEY — readable white
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.16s;
+  }
+
+  .sub-badge {
+    font-size: 0.58rem;
+    font-weight: 800;
+    background: #EF4444;
+    color: white;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  // Hover
+  &:hover {
+    background: rgba(255,255,255,0.08);
+    .sub-icon  { color: rgba(255,255,255,0.75); }
+    .sub-label { color: rgba(255,255,255,0.9); }
+  }
+
+  // Active — selected page
+  &.sub-active {
+    background: rgba(99,102,241,0.2);
+    border: 1px solid rgba(99,102,241,0.22);
+
+    .sub-icon  { color: #A5B4FC; }
+    .sub-label { color: #C7D2FE; font-weight: 600; }
+  }
+}
+
+// ── Sidebar Footer ────────────────────────────────
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: 6px 10px 12px;
+
+  .footer-line {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin-bottom: 8px;
+  }
+
+  .logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(239,68,68,0.06);
+    cursor: pointer;
+    transition: background 0.18s;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+
+    mat-icon {
+      font-size: 17px;
+      color: rgba(239,154,154,0.62);
+      transition: color 0.18s;
+    }
+
+    span {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(239,154,154,0.62);
+      transition: color 0.18s;
+    }
+
+    &:hover {
+      background: rgba(239,68,68,0.13);
+      mat-icon { color: #FCA5A5; }
+      span     { color: #FCA5A5; }
+    }
+  }
+}
+
+// ===================================================
+//  TOOLBAR
+// ===================================================
 .top-toolbar {
   background: white !important;
   box-shadow: 0 1px 8px rgba(0,0,0,0.07) !important;
@@ -197,8 +471,12 @@
   padding: 0 20px !important;
 
   .menu-btn {
-    color: #64748B;
-    margin-right: 4px;
+    color: #6366F1;
+    background: rgba(99,102,241,0.07);
+    border-radius: 9px !important;
+    margin-right: 10px;
+    transition: background 0.18s;
+    &:hover { background: rgba(99,102,241,0.14) !important; }
   }
 
   .page-title {
@@ -206,6 +484,7 @@
     font-weight: 700;
     color: #0D1B4B;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.2px;
   }
 
   .spacer { flex: 1; }
@@ -216,23 +495,24 @@
     gap: 8px;
     border-radius: 10px !important;
     padding: 4px 10px !important;
-    transition: background 0.2s;
+    background: rgba(99,102,241,0.05) !important;
+    border: 1px solid rgba(99,102,241,0.1) !important;
+    transition: background 0.18s;
 
-    &:hover {
-      background: #F1F5F9 !important;
-    }
+    &:hover { background: rgba(99,102,241,0.1) !important; }
 
     .toolbar-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1565C0, #42A5F5);
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
       color: white;
       font-size: 0.72rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     .toolbar-name {
@@ -242,11 +522,16 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    mat-icon { color: #94A3B8; font-size: 18px; }
+    mat-icon {
+      color: #6366F1;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
   }
 }
 
-// ===== USER DROPDOWN =====
+// ── User Dropdown ─────────────────────────────────
 .menu-user-info {
   display: flex;
   align-items: center;
@@ -256,8 +541,8 @@
   .menu-avatar {
     width: 38px;
     height: 38px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1565C0, #42A5F5);
+    border-radius: 9px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
     color: white;
     font-size: 0.85rem;
     font-weight: 600;
@@ -265,36 +550,21 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
-  strong {
-    display: block;
-    font-size: 0.88rem;
-    color: #0F172A;
-    font-weight: 600;
-  }
-
-  small {
-    color: #94A3B8;
-    font-size: 0.75rem;
-  }
+  strong { display: block; font-size: 0.88rem; color: #0F172A; font-weight: 600; }
+  small  { color: #94A3B8; font-size: 0.75rem; }
 }
 
-// ===== MAIN CONTENT =====
-.main-content {
-  background: #F0F4FF;
-}
+// ===================================================
+//  MAIN CONTENT
+// ===================================================
+.main-content { background: #F0F4FF; }
 
 .page-content {
   padding: 22px;
   min-height: calc(100vh - 58px);
 
-  @media (max-width: 600px) {
-    padding: 12px;
-  }
-}
-
-// ===== RESPONSIVE =====
-@media (max-width: 768px) {
-  .sidenav { width: 270px; }
+  @media (max-width: 600px) { padding: 12px; }
 }

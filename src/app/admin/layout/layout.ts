@@ -13,20 +13,27 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth';
 
+interface SubItem {
+  label: string;
+  route: string;
+  icon: string;
+  badge?: string;
+}
+
+interface MenuItem {
+  icon: string;
+  label: string;
+  route?: string;
+  children?: SubItem[];
+}
+
 @Component({
   selector: 'app-layout',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatDividerModule,
-    MatBadgeModule
+    CommonModule, RouterModule, MatSidenavModule,
+    MatToolbarModule, MatListModule, MatIconModule,
+    MatButtonModule, MatMenuModule, MatDividerModule, MatBadgeModule
   ],
   templateUrl: './layout.html',
   styleUrls: ['./layout.scss']
@@ -37,18 +44,70 @@ export class Layout implements OnInit, AfterViewInit {
   isMobile = false;
   currentUser: any;
   currentPageTitle = 'Dashboard';
+  openMenus: Set<string> = new Set();
 
-menuItems = [
-  { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
-  { icon: 'assignment', label: 'Leads', route: '/admin/leads' },
-    { icon: 'assignment', label: 'Leads', route: '/admin/leadsmgmt' },
-  { icon: 'engineering', label: 'Engineers', route: '/admin/engineers' },
-  { icon: 'people', label: 'Customers', route: '/admin/customers' },
-  { icon: 'inventory_2', label: 'Parts', route: '/admin/parts' },
-  { icon: 'receipt_long', label: 'Bills', route: '/admin/bills' },
-  { icon: 'verified_user', label: 'AMC', route: '/admin/amc' },
-  { icon: 'bar_chart', label: 'Reports', route: '/admin/reports' },
-];
+  menuItems: MenuItem[] = [
+    {
+      icon: 'dashboard',
+      label: 'Dashboard',
+      route: '/admin/dashboard'
+    },
+    {
+      icon: 'assignment',
+      label: 'Leads',
+      children: [
+        { label: 'All Leads', route: '/admin/leads', icon: 'list_alt' },
+        { label: 'Naya Lead', route: '/admin/leads/add', icon: 'add_circle_outline' },
+      ]
+    },
+    {
+      icon: 'engineering',
+      label: 'Engineers',
+      children: [
+        { label: 'Engineer List', route: '/admin/engineers', icon: 'group' },
+        { label: 'Engineer Add', route: '/admin/engineers/add', icon: 'person_add_alt' },
+      ]
+    },
+    {
+      icon: 'people',
+      label: 'Customers',
+      children: [
+        { label: 'Customer List', route: '/admin/customers', icon: 'people_outline' },
+      ]
+    },
+    {
+      icon: 'inventory_2',
+      label: 'Parts & Inventory',
+      children: [
+        { label: 'Parts List', route: '/admin/parts', icon: 'widgets' },
+      ]
+    },
+    {
+      icon: 'receipt_long',
+      label: 'Billing',
+      children: [
+        { label: 'All Bills', route: '/admin/bills', icon: 'receipt' },
+        { label: 'Bill Banao', route: '/admin/bills/create', icon: 'add_circle_outline' },
+      ]
+    },
+    {
+      icon: 'verified_user',
+      label: 'AMC',
+      children: [
+        { label: 'AMC Dashboard', route: '/admin/amc', icon: 'dashboard' },
+        { label: 'All Contracts', route: '/admin/amc/list', icon: 'list_alt' },
+        { label: 'New Contract', route: '/admin/amc/create', icon: 'add_circle_outline' },
+        { label: 'Expiring Soon', route: '/admin/amc/expiring', icon: 'alarm', badge: '!' },
+      ]
+    },
+    {
+      icon: 'bar_chart',
+      label: 'Reports',
+      children: [
+        { label: 'Analytics', route: '/admin/reports', icon: 'analytics' },
+      ]
+    },
+  ];
 
   constructor(
     private authService: AuthService,
@@ -59,18 +118,15 @@ menuItems = [
   }
 
   ngOnInit() {
-    // Sirf page title yahan — sidenav touch mat karo ngOnInit mein
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe(() => {
-      const url = this.router.url;
-      const item = this.menuItems.find(m => url.includes(m.route));
-      this.currentPageTitle = item ? item.label : 'GrowMore';
+      this.syncActiveMenu();
     });
+    this.syncActiveMenu();
   }
 
   ngAfterViewInit() {
-    // ViewChild sidenav ab ready hai — yahan breakpoint observer chalao
     this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.Tablet])
       .subscribe(result => {
@@ -78,27 +134,63 @@ menuItems = [
         if (this.isMobile) {
           this.sidenav.close();
         } else {
-          this.sidenav.open(); // Desktop pe pehli baar bhi open hoga
+          this.sidenav.open();
         }
       });
   }
 
-  toggleSidenav() {
-    this.sidenav.toggle();
+  syncActiveMenu() {
+    const url = this.router.url;
+
+    this.menuItems.forEach(item => {
+      if (item.children) {
+        const hasActive = item.children.some(c => url.startsWith(c.route));
+        if (hasActive) this.openMenus.add(item.label);
+      }
+    });
+
+    const active = this.menuItems.find(item => {
+      if (item.route) return url === item.route;
+      if (item.children) return item.children.some(c => url.startsWith(c.route));
+      return false;
+    });
+    this.currentPageTitle = active?.label || 'GrowMore';
   }
 
-  closeSidenavOnMobile() {
-    if (this.isMobile) {
-      this.sidenav.close();
+  toggleMenu(label: string) {
+    if (this.openMenus.has(label)) {
+      this.openMenus.delete(label);
+    } else {
+      this.openMenus.add(label);
     }
   }
+
+  isMenuOpen(label: string): boolean {
+    return this.openMenus.has(label);
+  }
+
+  isActiveParent(item: MenuItem): boolean {
+    const url = this.router.url;
+    if (item.route) return url === item.route;
+    if (item.children) return item.children.some(c => url.startsWith(c.route));
+    return false;
+  }
+
+  isActiveChild(route: string): boolean {
+    return this.router.url === route || this.router.url.startsWith(route + '/');
+  }
+
+  navigate(route: string) {
+    this.router.navigate([route]);
+    if (this.isMobile) this.sidenav.close();
+  }
+
+  toggleSidenav() { this.sidenav.toggle(); }
 
   getUserInitials(): string {
     const name = this.currentUser?.name || '';
     return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
-  logout() {
-    this.authService.logout();
-  }
+  logout() { this.authService.logout(); }
 }

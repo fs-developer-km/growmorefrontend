@@ -1,14 +1,17 @@
 <mat-sidenav-container class="sidenav-container">
 
-  <!-- Sidebar -->
-  <mat-sidenav #sidenav [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="sidenav">
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="!isMobile"
+    class="sidenav">
 
     <!-- Logo -->
     <div class="sidebar-header">
       <div class="logo-wrap">
         <div class="logo-circle">G</div>
         <div class="logo-text">
-          <span class="logo-title">GrowMore</span>
+          <span class="logo-title">Grow More</span>
           <span class="logo-sub">Admin Panel</span>
         </div>
       </div>
@@ -19,38 +22,96 @@
       <div class="user-avatar-lg">{{ getUserInitials() }}</div>
       <div class="user-info">
         <span class="user-name-sm">{{ currentUser?.name }}</span>
-        <span class="user-role">{{ currentUser?.role | titlecase }}</span>
+        <span class="user-role">
+          <span class="online-dot"></span>
+          Administrator
+        </span>
       </div>
     </div>
 
-    <!-- Nav -->
-    <mat-nav-list class="nav-list">
-      <div class="nav-section-label">Navigation</div>
-      <a mat-list-item
-         *ngFor="let item of menuItems"
-         [routerLink]="item.route"
-         routerLinkActive="active-link"
-         class="nav-item"
-         (click)="closeSidenavOnMobile()">
-        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-        <span matListItemTitle>{{ item.label }}</span>
-      </a>
-    </mat-nav-list>
+    <!-- Scrollable Nav Area -->
+    <div class="nav-scroll-area">
+
+      <div class="nav-section-label">NAVIGATION</div>
+
+      <ng-container *ngFor="let item of menuItems">
+
+        <!-- Single Item — no children -->
+        <div class="nav-group" *ngIf="!item.children">
+          <button
+            class="nav-parent-btn"
+            [class.is-active]="isActiveParent(item)"
+            (click)="navigate(item.route!)">
+            <div class="npb-icon" [class.npb-icon-active]="isActiveParent(item)">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </div>
+            <span class="npb-label">{{ item.label }}</span>
+          </button>
+        </div>
+
+        <!-- Dropdown Item — with children -->
+        <div class="nav-group" *ngIf="item.children">
+
+          <!-- Parent trigger -->
+          <button
+            class="nav-parent-btn"
+            [class.is-active]="isActiveParent(item)"
+            [class.is-open]="isMenuOpen(item.label)"
+            (click)="toggleMenu(item.label)">
+            <div class="npb-icon" [class.npb-icon-active]="isActiveParent(item)">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </div>
+            <span class="npb-label">{{ item.label }}</span>
+            <div class="npb-meta">
+              <!-- <span class="npb-count">{{ item.children.length }}</span> -->
+              <mat-icon
+                class="npb-arrow"
+                [class.npb-arrow-open]="isMenuOpen(item.label)">
+                keyboard_arrow_down
+              </mat-icon>
+            </div>
+          </button>
+
+          <!-- Submenu -->
+          <div
+            class="submenu-wrap"
+            [class.submenu-open]="isMenuOpen(item.label)">
+            <div class="submenu-inner">
+              <div class="submenu-line"></div>
+              <div class="submenu-items">
+                <button
+                  class="sub-btn"
+                  *ngFor="let child of item.children"
+                  [class.sub-active]="isActiveChild(child.route)"
+                  (click)="navigate(child.route)">
+                  <mat-icon class="sub-icon">{{ child.icon }}</mat-icon>
+                  <span class="sub-label">{{ child.label }}</span>
+                  <span class="sub-badge" *ngIf="child.badge">{{ child.badge }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </ng-container>
+
+    </div><!-- /nav-scroll-area -->
 
     <!-- Footer -->
     <div class="sidebar-footer">
-      <a mat-list-item class="nav-item logout-item" (click)="logout()">
-        <mat-icon matListItemIcon>logout</mat-icon>
-        <span matListItemTitle>Logout</span>
-      </a>
+      <div class="footer-line"></div>
+      <button class="logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
     </div>
 
   </mat-sidenav>
 
-  <!-- Main -->
+  <!-- Main Content -->
   <mat-sidenav-content class="main-content">
 
-    <!-- Toolbar -->
     <mat-toolbar class="top-toolbar">
       <button mat-icon-button (click)="toggleSidenav()" class="menu-btn">
         <mat-icon>menu</mat-icon>
@@ -62,23 +123,22 @@
         <span class="toolbar-name hide-mobile">{{ currentUser?.name }}</span>
         <mat-icon>expand_more</mat-icon>
       </button>
-      <mat-menu #userMenu="matMenu" class="user-dropdown">
+      <mat-menu #userMenu="matMenu">
         <div class="menu-user-info">
           <div class="menu-avatar">{{ getUserInitials() }}</div>
           <div>
             <strong>{{ currentUser?.name }}</strong>
-            <small>{{ currentUser?.role | titlecase }}</small>
+            <small>Administrator</small>
           </div>
         </div>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>
-          <span>Logout</span>
+          <span>Logout Karo</span>
         </button>
       </mat-menu>
     </mat-toolbar>
 
-    <!-- Router -->
     <div class="page-content">
       <router-outlet></router-outlet>
     </div>
