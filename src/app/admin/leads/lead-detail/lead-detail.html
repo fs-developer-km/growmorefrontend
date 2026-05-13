@@ -1,169 +1,670 @@
-<div class="lead-detail-page">
+<div class="lead-detail-crm">
 
-  <!-- Back Button -->
-  <div class="page-header">
-    <button mat-icon-button routerLink="/admin/leads">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <div>
-      <h1>Lead Detail</h1>
-      <p>Lead ki poori information</p>
+  <!-- TOP BAR -->
+  <div class="crm-topbar">
+    <div class="tb-left">
+      <button mat-icon-button routerLink="/admin/leads" class="back-btn" matTooltip="Back to Leads">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="tb-breadcrumb">
+        <span class="tb-module">Leads</span>
+        <mat-icon class="tb-sep">chevron_right</mat-icon>
+        <span class="tb-current">Lead Detail</span>
+      </div>
+    </div>
+
+    <div class="tb-actions" *ngIf="lead">
+      <button class="tb-btn pin-btn" (click)="togglePin()" [matTooltip]="lead.isPinned ? 'Unpin' : 'Pin this lead'">
+        <mat-icon>{{ lead.isPinned ? 'push_pin' : 'push_pin' }}</mat-icon>
+        <span class="hide-mobile">{{ lead.isPinned ? 'Pinned' : 'Pin' }}</span>
+      </button>
+      <button class="tb-btn wa-btn" (click)="openWhatsApp()" matTooltip="WhatsApp">
+        <mat-icon>message</mat-icon>
+        <span class="hide-mobile">WhatsApp</span>
+      </button>
+      <button class="tb-btn job-btn" (click)="createJobCard()" matTooltip="Create Job Card">
+        <mat-icon>build</mat-icon>
+        <span class="hide-mobile">Job Card</span>
+      </button>
+      <button class="tb-btn bill-btn" (click)="createBill()" matTooltip="Create Bill">
+        <mat-icon>receipt_long</mat-icon>
+        <span class="hide-mobile">Bill</span>
+      </button>
     </div>
   </div>
 
-  <!-- Loader -->
-  <div class="loader-wrap" *ngIf="loading">
-    <mat-spinner diameter="40"></mat-spinner>
+  <!-- LOADER -->
+  <div class="crm-loader" *ngIf="loading">
+    <mat-spinner diameter="44"></mat-spinner>
+    <p>Loading lead details...</p>
   </div>
 
-  <div *ngIf="!loading && lead" class="detail-grid">
+  <div class="crm-body" *ngIf="!loading && lead">
 
-    <!-- Left Column -->
-    <div class="left-col">
+    <!-- HERO SECTION -->
+    <div class="crm-hero">
 
-      <!-- Customer Info Card -->
-      <div class="info-card">
-        <div class="card-header">
-          <mat-icon>person</mat-icon>
-          <span>Customer Details</span>
-          <span class="badge {{ getBadgeClass(lead.status) }}">{{ lead.status }}</span>
+      <!-- Customer Card -->
+      <div class="hero-customer">
+        <div class="hc-avatar" [class.repeat]="lead.customerType === 'Repeat'"
+          [class.fresh]="lead.customerType === 'Fresh'">
+          {{ lead.customer?.name?.charAt(0) }}
         </div>
-
-        <div class="customer-profile">
-          <div class="customer-avatar">{{ lead.customer?.name?.charAt(0) }}</div>
-          <div class="customer-info">
+        <div class="hc-info">
+          <div class="hci-top">
             <h2>{{ lead.customer?.name }}</h2>
-            <a href="tel:{{ lead.customer?.phone }}" class="phone-link">
-              <mat-icon>phone</mat-icon> {{ lead.customer?.phone }}
+            <span class="customer-type-badge {{ lead.customerType === 'Repeat' ? 'repeat' : 'fresh' }}">
+              {{ lead.customerType === 'Repeat' ? '🔁 Repeat' : '🆕 Fresh' }}
+            </span>
+          </div>
+          <div class="hci-contacts">
+            <a [href]="'tel:' + lead.customer?.phone" class="contact-link">
+              <mat-icon>phone</mat-icon>{{ lead.customer?.phone }}
+            </a>
+            <a [href]="'tel:' + lead.customer?.alternatePhone" class="contact-link"
+              *ngIf="lead.customer?.alternatePhone">
+              <mat-icon>phone_forwarded</mat-icon>{{ lead.customer?.alternatePhone }}
             </a>
           </div>
-        </div>
-
-        <div class="info-rows">
-          <div class="info-row">
-            <span class="label"><mat-icon>location_on</mat-icon> Address</span>
-            <span class="value">{{ lead.address || lead.customer?.address || '—' }}</span>
+          <div class="hci-address">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ lead.address || lead.customer?.address }}
+              <em *ngIf="lead.area || lead.customer?.area">
+                · {{ lead.area || lead.customer?.area }}
+              </em>
+            </span>
           </div>
-          <div class="info-row">
-            <span class="label"><mat-icon>kitchen</mat-icon> Appliance</span>
-            <span class="value">{{ getApplianceEmoji(lead.applianceType) }} {{ lead.applianceType }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label"><mat-icon>build</mat-icon> Service</span>
-            <span class="value">{{ lead.serviceType }}</span>
-          </div>
-          <div class="info-row" *ngIf="lead.description">
-            <span class="label"><mat-icon>description</mat-icon> Problem</span>
-            <span class="value">{{ lead.description }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label"><mat-icon>calendar_today</mat-icon> Date</span>
-            <span class="value">{{ lead.createdAt | date:'dd MMM yyyy, hh:mm a' }}</span>
-          </div>
-          <div class="info-row" *ngIf="lead.scheduledDate">
-            <span class="label"><mat-icon>event</mat-icon> Scheduled</span>
-            <span class="value">{{ lead.scheduledDate | date:'dd MMM yyyy' }}</span>
+          <div class="hci-ref" *ngIf="lead.reference">
+            <mat-icon>record_voice_over</mat-icon>
+            <span>Ref: {{ lead.reference }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Engineer Assigned Info -->
-      <div class="info-card" *ngIf="lead.assignedTo">
-        <div class="card-header">
-          <mat-icon>engineering</mat-icon>
-          <span>Assigned Engineer</span>
+      <!-- Lead Summary Strip -->
+      <div class="hero-strip">
+
+        <div class="hs-item">
+          <span class="hs-label">Product</span>
+          <span class="hs-val product-val">
+            {{ getApplianceEmoji(lead.applianceType) }}
+            {{ lead.applianceType }}
+            <small *ngIf="lead.subProduct">· {{ lead.subProduct }}</small>
+            <small *ngIf="lead.subProduct2">· {{ lead.subProduct2 }}</small>
+          </span>
         </div>
-        <div class="engineer-profile">
-          <div class="eng-avatar">{{ lead.assignedTo?.name?.charAt(0) }}</div>
-          <div>
-            <h3>{{ lead.assignedTo?.name }}</h3>
-            <a href="tel:{{ lead.assignedTo?.phone }}" class="phone-link">
-              <mat-icon>phone</mat-icon> {{ lead.assignedTo?.phone }}
-            </a>
-          </div>
+
+        <div class="hs-divider"></div>
+
+        <div class="hs-item">
+          <span class="hs-label">Service</span>
+          <span class="hs-val">{{ lead.serviceType }}</span>
         </div>
+
+        <div class="hs-divider"></div>
+
+        <div class="hs-item">
+          <span class="hs-label">Status</span>
+          <span class="status-pill {{ getStatusClass(lead.status) }}">{{ lead.status }}</span>
+        </div>
+
+        <div class="hs-divider"></div>
+
+        <div class="hs-item">
+          <span class="hs-label">Priority</span>
+          <span class="priority-pill {{ getPriorityClass(lead.priority) }}">{{ lead.priority }}</span>
+        </div>
+
+        <div class="hs-divider"></div>
+
+        <div class="hs-item">
+          <span class="hs-label">Engineer</span>
+          <span class="hs-val eng-val" *ngIf="lead.assignedTo">
+            <div class="eng-dot"></div>
+            {{ lead.assignedTo?.name }}
+          </span>
+          <span class="hs-val unassigned-val" *ngIf="!lead.assignedTo">
+            <mat-icon>person_off</mat-icon> Unassigned
+          </span>
+        </div>
+
+        <div class="hs-divider"></div>
+
+        <div class="hs-item">
+          <span class="hs-label">Created</span>
+          <span class="hs-val">
+            {{ lead.createdAt | date:'dd MMM' }}
+            <small>{{ getDaysAgo() }}</small>
+          </span>
+        </div>
+
+        <div class="hs-divider" *ngIf="lead.scheduledDate"></div>
+
+        <div class="hs-item" *ngIf="lead.scheduledDate">
+          <span class="hs-label">Scheduled</span>
+          <span class="hs-val">
+            {{ lead.scheduledDate | date:'dd MMM' }}
+            <small *ngIf="lead.appointmentTime">{{ lead.appointmentTime }}</small>
+          </span>
+        </div>
+
+        <div class="hs-divider" *ngIf="lead.estimateAmount > 0"></div>
+
+        <div class="hs-item" *ngIf="lead.estimateAmount > 0">
+          <span class="hs-label">Estimate</span>
+          <span class="hs-val estimate-val">₹{{ lead.estimateAmount | number }}</span>
+        </div>
+
       </div>
 
     </div>
 
-    <!-- Right Column -->
-    <div class="right-col">
-
-      <!-- Assign Engineer Card -->
-      <div class="action-card">
-        <div class="card-header">
-          <mat-icon>assignment_ind</mat-icon>
-          <span>Engineer Assign Karo</span>
-        </div>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Engineer Select Karo</mat-label>
-          <mat-select [(ngModel)]="selectedEngineerId">
-            <mat-option value="">-- Select karo --</mat-option>
-            <mat-option *ngFor="let eng of engineers" [value]="eng._id">
-              {{ eng.name }} — {{ eng.phone }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <button mat-raised-button color="primary" class="full-width action-btn" (click)="assignEngineer()"
-          [disabled]="assigning || !selectedEngineerId">
-          <mat-spinner diameter="18" *ngIf="assigning"></mat-spinner>
-          <mat-icon *ngIf="!assigning">assignment_turned_in</mat-icon>
-          <span>{{ assigning ? 'Assign Ho Raha Hai...' : 'Engineer Assign Karo' }}</span>
-        </button>
-      </div>
-
-      <!-- Update Status Card -->
-      <div class="action-card">
-        <div class="card-header">
-          <mat-icon>update</mat-icon>
-          <span>Status Update Karo</span>
-        </div>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Naya Status</mat-label>
-          <mat-select [(ngModel)]="selectedStatus">
-            <mat-option *ngFor="let s of statusOptions" [value]="s">
-              {{ s }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Remarks (Optional)</mat-label>
-          <textarea matInput [(ngModel)]="remarks" rows="2" placeholder="Koi baat add karni ho toh likho...">
-    </textarea>
-        </mat-form-field>
-
-        <button mat-raised-button color="accent" class="full-width action-btn" (click)="updateStatus()"
-          [disabled]="updatingStatus">
-          <mat-spinner diameter="18" *ngIf="updatingStatus"></mat-spinner>
-          <mat-icon *ngIf="!updatingStatus">save</mat-icon>
-          <span>{{ updatingStatus ? 'Update Ho Raha Hai...' : 'Status Update Karo' }}</span>
-        </button>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="action-card">
-        <div class="card-header">
-          <mat-icon>flash_on</mat-icon>
-          <span>Quick Actions</span>
-        </div>
-        <div class="quick-btns">
-          <button mat-stroked-button color="primary" class="full-width" [routerLink]="['/admin/jobs/create', lead._id]">
-            <mat-icon>assignment</mat-icon> Job Card Banao
-          </button>
-          <button mat-stroked-button color="primary" class="full-width">
-            <mat-icon>receipt_long</mat-icon> Bill Banao
-          </button>
-          <a mat-stroked-button [href]="'https://wa.me/91' + lead.customer?.phone" target="_blank"
-            class="full-width wa-btn">
-            <mat-icon>message</mat-icon> WhatsApp Karo
-          </a>
-        </div>
-      </div>
-
+    <!-- TABS -->
+    <div class="crm-tabs">
+      <button *ngFor="let tab of tabs" class="tab-btn" [class.active]="activeTab === tab.key"
+        (click)="activeTab = tab.key">
+        <mat-icon>{{ tab.icon }}</mat-icon>
+        <span>{{ tab.label }}</span>
+        <span class="tab-badge" *ngIf="tab.key === 'notes' && lead.notes?.length > 0">
+          {{ lead.notes.length }}
+        </span>
+        <span class="tab-badge happy" *ngIf="tab.key === 'happycall' && lead.happyCall?.called">✓</span>
+      </button>
     </div>
-  </div>
+
+    <!-- TAB CONTENT -->
+    <div class="crm-content">
+
+      <!-- ===== OVERVIEW TAB ===== -->
+      <div class="tab-panel" *ngIf="activeTab === 'overview'">
+        <div class="overview-grid">
+
+          <!-- LEFT: Lead Details + Assign + Status -->
+          <div class="ov-left">
+
+            <!-- Lead Info Card -->
+            <div class="crm-card">
+              <div class="cc-header">
+                <mat-icon>info</mat-icon>
+                <span>Lead Information</span>
+              </div>
+              <div class="info-grid">
+
+                <div class="info-cell">
+                  <span class="ic-label">Lead ID</span>
+                  <span class="ic-val mono">{{ lead._id?.slice(-8).toUpperCase() }}</span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Source</span>
+                  <span class="ic-val">{{ lead.source || '—' }}</span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Product</span>
+                  <span class="ic-val">
+                    {{ getApplianceEmoji(lead.applianceType) }} {{ lead.applianceType }}
+                  </span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Sub Product</span>
+                  <span class="ic-val">{{ lead.subProduct || '—' }}</span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Sub Product 2</span>
+                  <span class="ic-val">{{ lead.subProduct2 || '—' }}</span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Service Type</span>
+                  <span class="ic-val">{{ lead.serviceType }}</span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">App. Date</span>
+                  <span class="ic-val">
+                    {{ lead.scheduledDate ? (lead.scheduledDate | date:'dd MMM yyyy') : '—' }}
+                  </span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">App. Time</span>
+                  <span class="ic-val">{{ lead.appointmentTime || '—' }}</span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Estimate</span>
+                  <span class="ic-val green-val">
+                    {{ lead.estimateAmount > 0 ? '₹' + lead.estimateAmount : '—' }}
+                  </span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Customer Type</span>
+                  <span class="ic-val">{{ lead.customerType }}</span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Priority</span>
+                  <span class="priority-pill {{ getPriorityClass(lead.priority) }} sm">
+                    {{ lead.priority }}
+                  </span>
+                </div>
+
+                <div class="info-cell">
+                  <span class="ic-label">Registered</span>
+                  <span class="ic-val">{{ lead.createdAt | date:'dd MMM yyyy' }}</span>
+                </div>
+
+                <div class="info-cell full-cell" *ngIf="lead.description">
+                  <span class="ic-label">Problem</span>
+                  <span class="ic-val">{{ lead.description }}</span>
+                </div>
+
+                <div class="info-cell full-cell" *ngIf="lead.workRemark">
+                  <span class="ic-label">Work Remark</span>
+                  <span class="ic-val">{{ lead.workRemark }}</span>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT: Assign + Status Update -->
+          <div class="ov-right">
+
+            <!-- Assign Engineer -->
+            <div class="crm-card">
+              <div class="cc-header">
+                <mat-icon>assignment_ind</mat-icon>
+                <span>Assign Engineer</span>
+              </div>
+
+              <div class="assigned-eng-card" *ngIf="lead.assignedTo">
+                <div class="aec-avatar">{{ lead.assignedTo?.name?.charAt(0) }}</div>
+                <div class="aec-info">
+                  <strong>{{ lead.assignedTo?.name }}</strong>
+                  <span>{{ lead.assignedTo?.phone }}</span>
+                </div>
+                <span class="aec-badge">Assigned</span>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-w" style="margin-top:8px;">
+                <mat-label>{{ lead.assignedTo ? 'Change Engineer' : 'Select Engineer' }}</mat-label>
+                <mat-select [(ngModel)]="selectedEngineerId">
+                  <mat-option value="">— Select —</mat-option>
+                  <mat-option *ngFor="let eng of engineers" [value]="eng._id">
+                    {{ eng.name }} · {{ eng.phone }}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>engineering</mat-icon>
+              </mat-form-field>
+
+              <button class="action-btn primary-btn full-w" (click)="assignEngineer()"
+                [disabled]="assigningEngineer || !selectedEngineerId">
+                <mat-spinner diameter="16" *ngIf="assigningEngineer"></mat-spinner>
+                <mat-icon *ngIf="!assigningEngineer">how_to_reg</mat-icon>
+                {{ assigningEngineer ? 'Assigning...' : 'Assign Engineer' }}
+              </button>
+            </div>
+
+            <!-- Update Status -->
+            <div class="crm-card">
+              <div class="cc-header">
+                <mat-icon>swap_horiz</mat-icon>
+                <span>Update Status</span>
+              </div>
+
+              <div class="status-pills-grid">
+                <button *ngFor="let s of statusOptions" class="status-pill-btn {{ getStatusClass(s) }}"
+                  [class.selected]="selectedStatus === s" (click)="selectedStatus = s">
+                  {{ s }}
+                </button>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-w" style="margin-top:10px;">
+                <mat-label>Remark (Optional)</mat-label>
+                <textarea matInput [(ngModel)]="remarks" rows="2"
+                  placeholder="Add a note about this status change..."></textarea>
+              </mat-form-field>
+
+              <button class="action-btn accent-btn full-w" (click)="updateStatus()" [disabled]="updatingStatus">
+                <mat-spinner diameter="16" *ngIf="updatingStatus"></mat-spinner>
+                <mat-icon *ngIf="!updatingStatus">save</mat-icon>
+                {{ updatingStatus ? 'Saving...' : 'Update Status' }}
+              </button>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="crm-card">
+              <div class="cc-header">
+                <mat-icon>bolt</mat-icon>
+                <span>Quick Actions</span>
+              </div>
+              <div class="quick-actions-grid">
+                <button class="qa-btn call" (click)="openWhatsApp()">
+                  <mat-icon>message</mat-icon>
+                  <span>WhatsApp</span>
+                </button>
+                <a class="qa-btn phone" [href]="'tel:' + lead.customer?.phone">
+                  <mat-icon>phone</mat-icon>
+                  <span>Call</span>
+                </a>
+                <button class="qa-btn job" (click)="createJobCard()">
+                  <mat-icon>build</mat-icon>
+                  <span>Job Card</span>
+                </button>
+                <button class="qa-btn bill" (click)="createBill()">
+                  <mat-icon>receipt_long</mat-icon>
+                  <span>Bill</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== FINANCIALS TAB ===== -->
+      <div class="tab-panel" *ngIf="activeTab === 'financial'">
+
+        <!-- Summary Cards -->
+        <div class="fin-summary-row">
+          <div class="fin-sum-card blue">
+            <span class="fsc-label">Total Amount</span>
+            <span class="fsc-val">₹{{ lead.totalAmount || 0 | number }}</span>
+          </div>
+          <div class="fin-sum-card orange">
+            <span class="fsc-label">Parts LP Cost</span>
+            <span class="fsc-val">₹{{ lead.partsLpCost || 0 | number }}</span>
+          </div>
+          <div class="fin-sum-card green">
+            <span class="fsc-label">Final Received</span>
+            <span class="fsc-val">₹{{ lead.finalAmount || 0 | number }}</span>
+          </div>
+          <div class="fin-sum-card purple">
+            <span class="fsc-label">Company Share</span>
+            <span class="fsc-val">₹{{ lead.companyShare || 0 | number }}</span>
+          </div>
+          <div class="fin-sum-card teal">
+            <span class="fsc-label">Engineer Share</span>
+            <span class="fsc-val">₹{{ lead.engineerShare || 0 | number }}</span>
+          </div>
+          <div class="fin-sum-card profit">
+            <span class="fsc-label">Net Profit</span>
+            <span class="fsc-val">₹{{ getProfit() | number }}</span>
+          </div>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="crm-card">
+          <div class="cc-header">
+            <mat-icon>edit_note</mat-icon>
+            <span>Update Financial Details</span>
+            <span class="cc-hint">These match Excel columns V, W, X, Y, Z</span>
+          </div>
+
+          <div class="fin-form-grid">
+
+            <div class="fin-field-wrap">
+              <label class="fin-label">Total Amount (V)</label>
+              <div class="fin-input-wrap">
+                <span class="fi-prefix">₹</span>
+                <input type="number" [(ngModel)]="financialForm.totalAmount" class="fin-input" placeholder="0"
+                  (change)="autoCalculate()">
+              </div>
+            </div>
+
+            <div class="fin-field-wrap">
+              <label class="fin-label">Parts LP Cost / Purchase (W)</label>
+              <div class="fin-input-wrap">
+                <span class="fi-prefix">₹</span>
+                <input type="number" [(ngModel)]="financialForm.partsLpCost" class="fin-input" placeholder="0"
+                  (change)="autoCalculate()">
+              </div>
+            </div>
+
+            <div class="fin-field-wrap">
+              <label class="fin-label">Final Amount Received (X)</label>
+              <div class="fin-input-wrap">
+                <span class="fi-prefix">₹</span>
+                <input type="number" [(ngModel)]="financialForm.finalAmount" class="fin-input" placeholder="0"
+                  (change)="autoCalculate()">
+              </div>
+            </div>
+
+            <div class="fin-field-wrap">
+              <label class="fin-label">Engineer Share / Commission (Z)</label>
+              <div class="fin-input-wrap">
+                <span class="fi-prefix">₹</span>
+                <input type="number" [(ngModel)]="financialForm.engineerShare" class="fin-input" placeholder="0"
+                  (change)="autoCalculate()">
+              </div>
+            </div>
+
+            <div class="fin-field-wrap">
+              <label class="fin-label">Company Share / Profit (Y)</label>
+              <div class="fin-input-wrap company-share">
+                <span class="fi-prefix">₹</span>
+                <input type="number" [(ngModel)]="financialForm.companyShare" class="fin-input"
+                  placeholder="Auto calculated">
+              </div>
+              <span class="fin-hint">Auto = Final - LP Cost - Eng Share</span>
+            </div>
+
+            <div class="fin-field-wrap full-fin">
+              <label class="fin-label">Work / Closer Remark (U)</label>
+              <textarea [(ngModel)]="financialForm.workRemark" class="fin-textarea" rows="3"
+                placeholder="Describe work done, parts used, service details..."></textarea>
+            </div>
+
+          </div>
+
+          <!-- Profit Preview -->
+          <div class="profit-preview">
+            <div class="pp-row">
+              <span>Final Received</span>
+              <span>₹{{ financialForm.finalAmount || 0 | number }}</span>
+            </div>
+            <div class="pp-row">
+              <span>Parts LP Cost</span>
+              <span class="red">— ₹{{ financialForm.partsLpCost || 0 | number }}</span>
+            </div>
+            <div class="pp-row">
+              <span>Engineer Share</span>
+              <span class="red">— ₹{{ financialForm.engineerShare || 0 | number }}</span>
+            </div>
+            <div class="pp-divider"></div>
+            <div class="pp-row total">
+              <span>Net Company Profit</span>
+              <span class="profit-val">
+                ₹{{ ((financialForm.finalAmount||0) - (financialForm.partsLpCost||0) - (financialForm.engineerShare||0))
+                | number }}
+              </span>
+            </div>
+          </div>
+
+          <button class="action-btn success-btn" (click)="saveFinancials()" [disabled]="updatingFinancials">
+            <mat-spinner diameter="16" *ngIf="updatingFinancials"></mat-spinner>
+            <mat-icon *ngIf="!updatingFinancials">save</mat-icon>
+            {{ updatingFinancials ? 'Saving...' : 'Save Financial Details' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== TIMELINE TAB ===== -->
+      <div class="tab-panel" *ngIf="activeTab === 'timeline'">
+        <div class="crm-card">
+          <div class="cc-header">
+            <mat-icon>timeline</mat-icon>
+            <span>Activity Timeline</span>
+            <span class="cc-count">{{ lead.timeline?.length || 0 }} activities</span>
+          </div>
+
+          <div class="timeline-empty" *ngIf="!lead.timeline?.length">
+            <mat-icon>history</mat-icon>
+            <p>No activity recorded yet</p>
+          </div>
+
+          <div class="timeline-list" *ngIf="lead.timeline?.length">
+            <div class="tl-item" *ngFor="let event of lead.timeline; let last = last">
+              <div class="tl-left">
+                <div class="tl-icon-wrap">
+                  <mat-icon>{{ getTimelineIcon(event.action) }}</mat-icon>
+                </div>
+                <div class="tl-line" *ngIf="!last"></div>
+              </div>
+              <div class="tl-right">
+                <p class="tl-desc">{{ event.description }}</p>
+                <div class="tl-meta">
+                  <span>{{ event.doneBy?.name || 'System' }}</span>
+                  <span>{{ event.doneAt | date:'dd MMM yyyy, hh:mm a' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NOTES TAB ===== -->
+      <div class="tab-panel" *ngIf="activeTab === 'notes'">
+        <div class="crm-card">
+          <div class="cc-header">
+            <mat-icon>sticky_note_2</mat-icon>
+            <span>Notes</span>
+            <span class="cc-count">{{ lead.notes?.length || 0 }}</span>
+          </div>
+
+          <!-- Add Note -->
+          <div class="add-note-wrap">
+            <textarea [(ngModel)]="newNote" class="note-textarea" rows="3" placeholder="Add a note about this lead...">
+            </textarea>
+            <button class="action-btn primary-btn" (click)="addNote()" [disabled]="!newNote.trim() || addingNote">
+              <mat-spinner diameter="16" *ngIf="addingNote"></mat-spinner>
+              <mat-icon *ngIf="!addingNote">send</mat-icon>
+              {{ addingNote ? 'Adding...' : 'Add Note' }}
+            </button>
+          </div>
+
+          <!-- Notes List -->
+          <div class="notes-empty" *ngIf="!lead.notes?.length">
+            <mat-icon>sticky_note_2</mat-icon>
+            <p>No notes yet. Add the first note above.</p>
+          </div>
+
+          <div class="notes-list" *ngIf="lead.notes?.length">
+            <div class="note-item" *ngFor="let note of $any(lead.notes) | slice:0:20">
+              <div class="ni-header">
+                <!-- <div class="ni-avatar">{{ note.addedBy?.name?.charAt(0) || 'A' }}</div> -->
+                <div class="ni-avatar">{{ getNoteUserInitial(note) }}</div>
+                <div class="ni-meta">
+                  <!-- <strong>{{ note.addedBy?.name || 'Admin' }}</strong> -->
+                  <strong>
+                    {{ getNoteUserName(note) }}</strong>
+                  <!-- <span>{{ note.addedAt | date:'dd MMM yyyy, hh:mm a' }}</span> -->
+                  <span>{{ getNoteDate(note) | date:'dd MMM yyyy, hh:mm a' }}</span>
+                </div>
+              </div>
+              <!-- <p class="ni-text">{{ note.text }}</p> -->
+              <p class="ni-text">{{ getNoteText(note) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== HAPPY CALL TAB ===== -->
+      <div class="tab-panel" *ngIf="activeTab === 'happycall'">
+        <div class="crm-card">
+          <div class="cc-header">
+            <mat-icon>phone_in_talk</mat-icon>
+            <span>Happy Call</span>
+            <span class="cc-badge success" *ngIf="lead.happyCall?.called">Completed ✓</span>
+            <span class="cc-badge pending" *ngIf="!lead.happyCall?.called">Pending</span>
+          </div>
+
+          <div class="happy-call-form">
+
+            <!-- Called Toggle -->
+            <div class="hc-toggle-row">
+              <div class="hct-info">
+                <strong>Call Made?</strong>
+                <span>Did you call the customer after service?</span>
+              </div>
+              <div class="hct-btns">
+                <button class="toggle-btn" [class.yes]="happyCallForm.called" (click)="happyCallForm.called = true">
+                  <mat-icon>check</mat-icon> Yes
+                </button>
+                <button class="toggle-btn" [class.no]="!happyCallForm.called" (click)="happyCallForm.called = false">
+                  <mat-icon>close</mat-icon> No
+                </button>
+              </div>
+            </div>
+
+            <!-- Satisfied Toggle -->
+            <div class="hc-toggle-row" *ngIf="happyCallForm.called">
+              <div class="hct-info">
+                <strong>Customer Satisfied?</strong>
+                <span>Was the customer happy with the service?</span>
+              </div>
+              <div class="hct-btns">
+                <button class="toggle-btn" [class.yes]="happyCallForm.satisfied === true"
+                  (click)="happyCallForm.satisfied = true">
+                  😊 Yes
+                </button>
+                <button class="toggle-btn" [class.no]="happyCallForm.satisfied === false"
+                  (click)="happyCallForm.satisfied = false">
+                  😞 No
+                </button>
+              </div>
+            </div>
+
+            <!-- Follow-up Toggle -->
+            <div class="hc-toggle-row">
+              <div class="hct-info">
+                <strong>Follow-up Required?</strong>
+                <span>Does this customer need a follow-up call?</span>
+              </div>
+              <div class="hct-btns">
+                <button class="toggle-btn" [class.yes]="happyCallForm.followUpRequired"
+                  (click)="happyCallForm.followUpRequired = true">
+                  Yes
+                </button>
+                <button class="toggle-btn" [class.no]="!happyCallForm.followUpRequired"
+                  (click)="happyCallForm.followUpRequired = false">
+                  No
+                </button>
+              </div>
+            </div>
+
+            <!-- Remarks -->
+            <div class="hc-field">
+              <label>Call Remarks</label>
+              <textarea [(ngModel)]="happyCallForm.remarks" class="fin-textarea" rows="3"
+                placeholder="Customer feedback, issues mentioned, follow-up details...">
+              </textarea>
+            </div>
+
+            <!-- Previous record -->
+            <div class="hc-previous" *ngIf="lead.happyCall?.called">
+              <mat-icon>history</mat-icon>
+              <span>Last call recorded on
+                {{ lead.happyCall.calledAt | date:'dd MMM yyyy, hh:mm a' }}
+                by {{ lead.happyCall.calledBy?.name || 'Admin' }}
+              </span>
+            </div>
+
+            <button class="action-btn success-btn" (click)="saveHappyCall()" [disabled]="updatingHappyCall">
+              <mat-spinner diameter="16" *ngIf="updatingHappyCall"></mat-spinner>
+              <mat-icon *ngIf="!updatingHappyCall">save</mat-icon>
+              {{ updatingHappyCall ? 'Saving...' : 'Save Happy Call Record' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /crm-content -->
+  </div><!-- /crm-body -->
 </div>
