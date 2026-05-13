@@ -46,68 +46,65 @@ export class Layout implements OnInit, AfterViewInit {
   currentPageTitle = 'Dashboard';
   openMenus: Set<string> = new Set();
 
-  menuItems: MenuItem[] = [
-    {
-      icon: 'dashboard',
-      label: 'Dashboard',
-      route: '/admin/dashboard'
-    },
-    {
-      icon: 'assignment',
-      label: 'Leads',
-      children: [
-        { label: 'All Leads', route: '/admin/leads', icon: 'list_alt' },
-        { label: 'Naya Lead', route: '/admin/leads/add', icon: 'add_circle_outline' },
-      ]
-    },
-    {
-      icon: 'engineering',
-      label: 'Engineers',
-      children: [
-        { label: 'Engineer List', route: '/admin/engineers', icon: 'group' },
-        { label: 'Engineer Add', route: '/admin/engineers/add', icon: 'person_add_alt' },
-      ]
-    },
-    {
-      icon: 'people',
-      label: 'Customers',
-      children: [
-        { label: 'Customer List', route: '/admin/customers', icon: 'people_outline' },
-      ]
-    },
-    {
-      icon: 'inventory_2',
-      label: 'Parts & Inventory',
-      children: [
-        { label: 'Parts List', route: '/admin/parts', icon: 'widgets' },
-      ]
-    },
-    {
-      icon: 'receipt_long',
-      label: 'Billing',
-      children: [
-        { label: 'All Bills', route: '/admin/bills', icon: 'receipt' },
-        { label: 'Bill Banao', route: '/admin/bills/create', icon: 'add_circle_outline' },
-      ]
-    },
-    {
-      icon: 'verified_user',
-      label: 'AMC',
-      children: [
-        { label: 'AMC Dashboard', route: '/admin/amc', icon: 'dashboard' },
-        { label: 'All Contracts', route: '/admin/amc/list', icon: 'list_alt' },
-        { label: 'New Contract', route: '/admin/amc/create', icon: 'add_circle_outline' },
-        { label: 'Expiring Soon', route: '/admin/amc/expiring', icon: 'alarm', badge: '!' },
-      ]
-    },
-    {
-      icon: 'bar_chart',
-      label: 'Reports',
-      children: [
-        { label: 'Analytics', route: '/admin/reports', icon: 'analytics' },
-      ]
-    },
-  ];
+menuItems: MenuItem[] = [
+  { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
+  {
+    icon: 'assignment',
+    label: 'Leads',
+    children: [
+      { label: 'Lead Board', route: '/admin/leads', icon: 'view_list' },
+      { label: 'New Lead', route: '/admin/leads/add', icon: 'add_circle_outline' },
+      { label: 'Lead Management', route: '/admin/leadsmgmt', icon: 'add_circle_outline' },
+    ]
+  },
+  {
+    icon: 'engineering',
+    label: 'Engineers',
+    children: [
+      { label: 'Engineer List', route: '/admin/engineers', icon: 'group' },
+      { label: 'Add Engineer', route: '/admin/engineers/add', icon: 'person_add_alt' },
+    ]
+  },
+  {
+    icon: 'people',
+    label: 'Customers',
+    children: [
+      { label: 'All Customers', route: '/admin/customers', icon: 'people_outline' },
+    ]
+  },
+  {
+    icon: 'inventory_2',
+    label: 'Inventory',
+    children: [
+      { label: 'Parts List', route: '/admin/parts', icon: 'widgets' },
+    ]
+  },
+  {
+    icon: 'receipt_long',
+    label: 'Billing',
+    children: [
+      { label: 'All Bills', route: '/admin/bills', icon: 'receipt' },
+      { label: 'Create Bill', route: '/admin/bills/create', icon: 'add_circle_outline' },
+    ]
+  },
+  {
+    icon: 'verified_user',
+    label: 'AMC',
+    children: [
+      { label: 'AMC Dashboard', route: '/admin/amc', icon: 'dashboard' },
+      { label: 'All Contracts', route: '/admin/amc/list', icon: 'list_alt' },
+      { label: 'New Contract', route: '/admin/amc/create', icon: 'add_circle_outline' },
+      { label: 'Expiring Soon', route: '/admin/amc/expiring', icon: 'alarm', badge: '!' },
+    ]
+  },
+  {
+    icon: 'bar_chart',
+    label: 'Reports',
+    children: [
+      { label: 'Analytics', route: '/admin/reports', icon: 'analytics' },
+    ]
+  },
+];
 
   constructor(
     private authService: AuthService,

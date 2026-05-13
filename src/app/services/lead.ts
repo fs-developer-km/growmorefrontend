@@ -24,25 +24,11 @@ export class LeadService {
     });
   }
 
-  getStats() {
-    return this.http.get(`${this.api}/stats`);
-  }
-
-  getLeadById(id: string) {
-    return this.http.get(`${this.api}/${id}`);
-  }
-
-  getMyLeads() {
-    return this.http.get(`${this.api}/mine`);
-  }
-
-  createLead(data: any) {
-    return this.http.post(this.api, data);
-  }
-
-  updateLead(id: string, data: any) {
-    return this.http.put(`${this.api}/${id}`, data);
-  }
+  getStats() { return this.http.get(`${this.api}/stats`); }
+  getLeadById(id: string) { return this.http.get(`${this.api}/${id}`); }
+  getMyLeads() { return this.http.get(`${this.api}/mine`); }
+  createLead(data: any) { return this.http.post(this.api, data); }
+  updateLead(id: string, data: any) { return this.http.put(`${this.api}/${id}`, data); }
 
   assignLead(id: string, engineerId: string) {
     return this.http.patch(`${this.api}/${id}/assign`, { engineerId });
@@ -50,6 +36,14 @@ export class LeadService {
 
   updateStatus(id: string, status: string, remarks: string = '') {
     return this.http.patch(`${this.api}/${id}/status`, { status, remarks });
+  }
+
+  updateHappyCall(id: string, data: any) {
+    return this.http.patch(`${this.api}/${id}/happy-call`, data);
+  }
+
+  updateFinancials(id: string, data: any) {
+    return this.http.patch(`${this.api}/${id}/financials`, data);
   }
 
   bulkAssign(leadIds: string[], engineerId: string) {
@@ -73,9 +67,6 @@ export class LeadService {
     Object.keys(filters).forEach(key => {
       if (filters[key]) params = params.set(key, filters[key]);
     });
-    return this.http.get(`${this.api}/export/excel`, {
-      params,
-      responseType: 'blob'
-    });
+    return this.http.get(`${this.api}/export/excel`, { params, responseType: 'blob' });
   }
 }

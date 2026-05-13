@@ -1,137 +1,253 @@
 <div class="lead-add-page">
 
-  <!-- Header -->
   <div class="page-header">
-    <button mat-icon-button routerLink="/admin/leads">
+    <button mat-icon-button routerLink="/admin/leads" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div>
-      <h1>Naya Lead Add Karo</h1>
-      <p>Customer aur service ki details bharo</p>
+    <div class="ph-text">
+      <h1>New Lead</h1>
+      <p>Add a new service request</p>
     </div>
   </div>
 
-  <div class="form-layout">
+  <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
 
-    <!-- Customer Details -->
-    <div class="form-section">
-      <div class="section-title">
-        <mat-icon>person</mat-icon>
-        <span>Customer Details</span>
-      </div>
+      <!-- LEFT COL -->
+      <div class="form-col">
 
-      <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
+        <!-- Customer Section -->
+        <div class="form-section">
+          <div class="fs-title">
+            <mat-icon>person</mat-icon>
+            <span>Customer Information</span>
+            <span class="repeat-badge" *ngIf="isRepeatCustomer">
+              🔁 Repeat Customer
+            </span>
+          </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Customer Ka Naam</mat-label>
-            <input matInput formControlName="customerName" placeholder="Jaise: Ramesh Kumar">
-            <mat-icon matPrefix>person</mat-icon>
-            <mat-error *ngIf="leadForm.get('customerName')?.hasError('required')">
-              Naam zaroori hai
-            </mat-error>
-          </mat-form-field>
-        </div>
+          <!-- Phone search -->
+          <div class="phone-search-wrap">
+            <mat-form-field appearance="outline" class="full-w">
+              <mat-label>Phone Number *</mat-label>
+              <input matInput formControlName="customerPhone"
+                placeholder="Enter 10 digit number"
+                maxlength="10" type="tel"
+                (input)="onCustomerPhoneInput($any($event.target).value)">
+              <mat-icon matPrefix>phone</mat-icon>
+              <mat-spinner matSuffix diameter="16" *ngIf="searchingCustomer"></mat-spinner>
+              <mat-error>Valid 10-digit number required</mat-error>
+            </mat-form-field>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="customerPhone" placeholder="10 digit number" maxlength="10" type="tel">
-            <mat-icon matPrefix>phone</mat-icon>
-            <mat-error *ngIf="leadForm.get('customerPhone')?.hasError('required')">
-              Phone zaroori hai
-            </mat-error>
-            <mat-error *ngIf="leadForm.get('customerPhone')?.hasError('pattern')">
-              Sahi 10 digit number daalo
-            </mat-error>
-          </mat-form-field>
-        </div>
+            <!-- Existing customers dropdown -->
+            <div class="customer-suggestions" *ngIf="customers.length > 0 && !selectedCustomer">
+              <div class="cs-header">Existing Customers Found</div>
+              <div class="cs-item" *ngFor="let c of customers" (click)="selectCustomer(c)">
+                <div class="cs-avatar">{{ c.name?.charAt(0) }}</div>
+                <div class="cs-info">
+                  <strong>{{ c.name }}</strong>
+                  <span>{{ c.phone }} · {{ c.area }}</span>
+                </div>
+                <span class="cs-badge">Select</span>
+              </div>
+            </div>
+          </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Ghar Ka Pata</mat-label>
-            <textarea matInput formControlName="customerAddress" rows="2" placeholder="Poora address likho"></textarea>
+          <!-- Repeat customer banner -->
+          <div class="repeat-banner" *ngIf="selectedCustomer">
+            <div class="rb-left">
+              <div class="rb-avatar">{{ selectedCustomer.name?.charAt(0) }}</div>
+              <div class="rb-info">
+                <strong>{{ selectedCustomer.name }}</strong>
+                <span>{{ selectedCustomer.phone }} · {{ selectedCustomer.area }}</span>
+              </div>
+            </div>
+            <button type="button" class="rb-change" (click)="clearCustomer()">
+              Change
+            </button>
+          </div>
+
+          <div class="form-row-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Customer Name *</mat-label>
+              <input matInput formControlName="customerName" placeholder="Full name">
+              <mat-icon matPrefix>badge</mat-icon>
+              <mat-error>Name is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Alternate Phone</mat-label>
+              <input matInput formControlName="alternatePhone" placeholder="Optional" maxlength="10" type="tel">
+              <mat-icon matPrefix>phone_forwarded</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Address *</mat-label>
+            <textarea matInput formControlName="customerAddress" rows="2"
+              placeholder="Complete address"></textarea>
             <mat-icon matPrefix>location_on</mat-icon>
-            <mat-error *ngIf="leadForm.get('customerAddress')?.hasError('required')">
-              Address zaroori hai
-            </mat-error>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Area / Colony</mat-label>
-            <input matInput formControlName="area" placeholder="Jaise: Shivalik Nagar">
-            <mat-icon matPrefix>map</mat-icon>
-          </mat-form-field>
-        </div>
-
-        <div class="section-title" style="margin-top: 8px;">
-          <mat-icon>build</mat-icon>
-          <span>Service Details</span>
-        </div>
-
-        <div class="form-row two-col">
-          <mat-form-field appearance="outline">
-            <mat-label>Appliance Type</mat-label>
-            <mat-select formControlName="applianceType">
-              <mat-option *ngFor="let type of applianceTypes" [value]="type">
-                {{ type }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matPrefix>kitchen</mat-icon>
-            <mat-error *ngIf="leadForm.get('applianceType')?.hasError('required')">
-              Appliance select karo
-            </mat-error>
+            <mat-error>Address is required</mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Service Type</mat-label>
-            <mat-select formControlName="serviceType">
-              <mat-option *ngFor="let type of serviceTypes" [value]="type">
-                {{ type }}
-              </mat-option>
-            </mat-select>
-            <mat-icon matPrefix>miscellaneous_services</mat-icon>
-            <mat-error *ngIf="leadForm.get('serviceType')?.hasError('required')">
-              Service type select karo
-            </mat-error>
-          </mat-form-field>
+          <div class="form-row-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Area / Colony</mat-label>
+              <input matInput formControlName="area" placeholder="e.g. Rajnagar Extension">
+              <mat-icon matPrefix>map</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Reference</mat-label>
+              <input matInput formControlName="reference" placeholder="Referral name / source">
+              <mat-icon matPrefix>record_voice_over</mat-icon>
+            </mat-form-field>
+          </div>
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
+        <!-- Product Section -->
+        <div class="form-section">
+          <div class="fs-title">
+            <mat-icon>build</mat-icon>
+            <span>Product & Service Details</span>
+          </div>
+
+          <div class="form-row-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Product *</mat-label>
+              <mat-select formControlName="applianceType">
+                <mat-option *ngFor="let t of applianceTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+              <mat-error>Required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Sub Product</mat-label>
+              <mat-select formControlName="subProduct">
+                <mat-option value="">— Select —</mat-option>
+                <mat-option *ngFor="let s of getSubProducts()" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" *ngIf="getSubProduct2().length > 0">
+              <mat-label>Sub Product 2</mat-label>
+              <mat-select formControlName="subProduct2">
+                <mat-option value="">— Select —</mat-option>
+                <mat-option *ngFor="let s of getSubProduct2()" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" *ngIf="getSubProduct2().length === 0">
+              <mat-label>Sub Product 2</mat-label>
+              <input matInput formControlName="subProduct2" placeholder="Optional detail">
+            </mat-form-field>
+          </div>
+
+          <div class="form-row-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Type of Work *</mat-label>
+              <mat-select formControlName="serviceType">
+                <mat-option *ngFor="let t of serviceTypes" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+              <mat-error>Required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Customer Type</mat-label>
+              <mat-select formControlName="customerType">
+                <mat-option value="Fresh">Fresh</mat-option>
+                <mat-option value="Repeat">Repeat</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
             <mat-label>Problem Description</mat-label>
             <textarea matInput formControlName="description" rows="3"
-              placeholder="Customer ne kya problem batai? Detail mein likho..."></textarea>
+              placeholder="Describe the issue..."></textarea>
             <mat-icon matPrefix>description</mat-icon>
           </mat-form-field>
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Scheduled Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="scheduledDate">
-            <mat-icon matPrefix>calendar_today</mat-icon>
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+      </div>
+
+      <!-- RIGHT COL -->
+      <div class="form-col">
+
+        <!-- Scheduling Section -->
+        <div class="form-section">
+          <div class="fs-title">
+            <mat-icon>calendar_today</mat-icon>
+            <span>Scheduling</span>
+          </div>
+
+          <div class="form-row-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Appointment Date</mat-label>
+              <input matInput type="date" formControlName="scheduledDate">
+              <mat-icon matPrefix>event</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Appointment Time</mat-label>
+              <mat-select formControlName="appointmentTime">
+                <mat-option value="">— Any Time —</mat-option>
+                <mat-option *ngFor="let t of timeSlots" [value]="t">{{ t }}</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>schedule</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-w">
+            <mat-label>Estimate Amount (₹)</mat-label>
+            <input matInput type="number" formControlName="estimateAmount" min="0"
+              placeholder="Quote given to customer">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-hint>Amount estimated/quoted to customer</mat-hint>
           </mat-form-field>
         </div>
 
-        <!-- Submit Buttons -->
-        <div class="form-actions">
-          <button mat-stroked-button type="button" routerLink="/admin/leads" [disabled]="loading">
-            Cancel
+        <!-- Classification Section -->
+        <div class="form-section">
+          <div class="fs-title">
+            <mat-icon>tune</mat-icon>
+            <span>Classification</span>
+          </div>
+
+          <div class="form-row-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Priority</mat-label>
+              <mat-select formControlName="priority">
+                <mat-option *ngFor="let p of priorities" [value]="p">{{ p }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Lead Source</mat-label>
+              <mat-select formControlName="source">
+                <mat-option *ngFor="let s of sources" [value]="s">{{ s }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-section submit-section">
+          <button type="submit" class="submit-btn"
+            [disabled]="leadForm.invalid || loading">
+            <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+            <mat-icon *ngIf="!loading">add_circle</mat-icon>
+            <span>{{ loading ? 'Creating Lead...' : 'Create Lead' }}</span>
           </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="leadForm.invalid || loading">
-            <mat-spinner diameter="18" *ngIf="loading"></mat-spinner>
-            <mat-icon *ngIf="!loading">check</mat-icon>
-            <span>{{ loading ? 'Save Ho Raha Hai...' : 'Lead Save Karo' }}</span>
+          <button type="button" mat-stroked-button
+            routerLink="/admin/leads" class="cancel-btn"
+            [disabled]="loading">
+            Cancel
           </button>
         </div>
 
-      </form>
+      </div>
     </div>
+  </form>
 
-  </div>
 </div>
